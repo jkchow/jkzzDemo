@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mappers.SalePropertyMapper">
+    <!--获取销售属性后台所需分页数据-->
+    <select id="getPropertyPage" parameterType="map" resultType="map">
+        SELECT sp.*,c.categoryName FROM sale_property sp
+        LEFT JOIN category c on c.categoryId=sp.categoryId
+        <where>
+            <if test="propertyName != null and propertyName != ''">
+                AND sp.propertyName LIKE '%${propertyName}%'
+            </if>
+            <if test="propertyType != null">
+                AND sp.propertyType=#{propertyType}
+            </if>
+            <if test="categoryId != null">
+                AND sp.categoryId=#{categoryId}
+            </if>
+        </where>
+        ORDER BY sp.sortValue ASC
+        limit #{startNo},#{pageSize}
+    </select>
+    <select id="getPropertyPageCount" parameterType="map" resultType="int">
+        SELECT count(*) FROM sale_property sp
+        <where>
+            <if test="propertyName != null and propertyName != ''">
+                AND sp.propertyName LIKE '%${propertyName}%'
+            </if>
+            <if test="propertyType != null">
+                AND sp.propertyType=#{propertyType}
+            </if>
+            <if test="categoryId != null">
+                AND sp.categoryId=#{categoryId}
+            </if>
+        </where>
+    </select>
+
+    <!--删除销售属性，并且同时删掉属性标签和对应的属性值-->
+    <delete id="deleteSaleProperty" parameterType="int">
+        DELETE FROM sale_property_value_label WHERE propertyId=#{propertyId};
+        DELETE FROM sale_property_value WHERE propertyId=#{propertyId};
+        DELETE FROM sale_property WHERE propertyId=#{propertyId};
+    </delete>
+    <!--根据分类id获取销售sku属性信息，用于添加商品sku时用-->
+    <resultMap id="addSkuMap" type="map">
+        <id property="propertyId" column="propertyId"/>
+        <result property="propertyName" column="propertyName"/>
+        <result property="propertyType" column="propertyType"/>
+        <result property="isRemark" column="isRemark"/>
+        <result property="isRequired" column="isRequired"/>
+        <result property="canCustomValue" column="canCustomValue"/>
+        <result property="needPropertyPic" column="needPropertyPic"/>
+        <result property="tip" column="tip"/>
+        <result property="remark" column="remark"/>
+        <collection property="labels" column="labelId" ofType="map" javaType="list" >
+            <id column="labelId" property="labelId"/>
+            <result property="labelName" column="labelName"/>
+            <result property="alias" column="labelAlias"/>
+            <collection property="values" column="valueId" ofType="map" javaType="list">
+                <id column="valueId" property="valueId"/>
+                <result property="valueName" column="name"/>
+                <result property="alias" column="alias"/>
+            </collection>
+        </collection>
+    </resultMap>
+    <select id="getByCatId" parameterType="int" resultMap="addSkuMap">
+        SELECT sp.propertyId,sp.propertyName,sp.propertyType,sp.isRemark,sp.isRequired,sp.canCustomValue,sp.needPropertyPic,sp.tip,sp.remark,
+        spv.valueId,spv.name,spv.alias,IFNULL(spvl.labelId,0) as labelId,IFNULL(spvl.labelName,'其他') as labelName,IFNULL(spvl.alias,'') as labelAlias
+        from sale_property sp
+        LEFT JOIN sale_property_value spv on spv.propertyId=sp.propertyId
+        LEFT JOIN sale_property_value_label spvl on spvl.labelId=spv.labelId
+        WHERE FIND_IN_SET(sp.categoryId,queryAllCategoryParentId(#{categoryId})) AND sp.status='enabled'
+        ORDER BY sp.sortValue,spvl.sortValue,spv.sortValue ASC
+    </select>
+
+    <!--获取该分类下颜色类型的销售属性个数-->
+    <select id="getColorTypeLength" parameterType="int" resultType="int">
+        SELECT count(*) from sale_property sp
+        WHERE FIND_IN_SET(sp.categoryId,queryAllCategoryParentId(#{categoryId})) AND propertyType='color'
+    </select>
+
+</mapper>

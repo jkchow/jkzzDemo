@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mappers.PromiseServiceMapper">
+    <!-- 获取后台品牌首页的数据 -->
+    <select id="getIndexData" parameterType="map" resultType="map">
+        <if test="categoryId == null">
+            select ps.*,
+            (SELECT GROUP_CONCAT(categoryName) from category WHERE categoryId in (SELECT categoryId from
+            promise_service_category WHERE promiseId=ps.promiseId)) as categoryNames
+            from promise_service ps
+            <where>
+                <if test="serviceName != null and serviceName != ''">
+                    ps.serviceName like '%${serviceName}%'
+                </if>
+            </where>
+            order BY ps.promiseId DESC
+            limit #{startNo},#{pageSize}
+        </if>
+        <if test="categoryId != null">
+            SELECT ps.*,c.categoryName as categoryNames
+            FROM promise_service_category psc
+            LEFT JOIN promise_service ps on ps.promiseId=psc.promiseId
+            LEFT JOIN category c on psc.categoryId=c.categoryId
+            <where>
+                AND psc.categoryId=#{categoryId}
+                <if test="serviceName != null and serviceName != ''">
+                    and ps.serviceName like '%${serviceName}%'
+                </if>
+            </where>
+            order BY ps.promiseId DESC
+            limit #{startNo},#{pageSize}
+        </if>
+    </select>
+    <!-- 获取后台服务承诺首页的数据 总数 -->
+    <select id="getIndexDataCount" parameterType="map" resultType="int">
+        <if test="categoryId == null">
+            select count(*) from promise_service ps
+            <where>
+                <if test="serviceName != null and serviceName != ''">
+                    and ps.serviceName like '%${serviceName}%'
+                </if>
+            </where>
+        </if>
+        <if test="categoryId != null">
+            SELECT count(*)
+            FROM promise_service_category psc
+            LEFT JOIN promise_service ps on ps.promiseId=psc.promiseId
+            <where>
+                AND psc.categoryId=#{categoryId}
+                <if test="serviceName != null and serviceName != ''">
+                    and ps.serviceName like '%${serviceName}%'
+                </if>
+            </where>
+        </if>
+    </select>
+    <!--根据分类id获取该分类下所有的品牌下拉列表-->
+    <!--<select id="combobox" parameterType="int" resultType="map">
+        select b.brandId,b.chName,b.enName from brand_category bc
+        LEFT JOIN brand b on b.brandId=bc.brandId
+        WHERE bc.categoryId=#{categoryId}
+    </select>-->
+
+    <!--给品牌添加经营类目-->
+    <insert id="addScopeCate" parameterType="map">
+		INSERT INTO promise_service_category(promiseId,categoryId) VALUES (#{promiseId},#{categoryId});
+	</insert>
+    <!--获取该品牌经营的类目列表-->
+    <select id="listScopeCat" parameterType="map" resultType="map">
+		  SELECT psc.promiseId,psc.categoryId,c.categoryName FROM promise_service_category psc
+		  LEFT JOIN category c on c.categoryId=psc.categoryId
+		  WHERE psc.promiseId=#{promiseId}
+		  limit #{startNo},#{pageSize}
+	</select>
+    <select id="listScopeCatCount" parameterType="map" resultType="int">
+		SELECT count(*) FROM promise_service_category psc
+		WHERE psc.promiseId=#{promiseId}
+	</select>
+    <!--删除服务承诺适用类目-->
+    <delete id="deleteScopeCat" parameterType="map">
+		DELETE FROM promise_service_category WHERE promiseId=#{promiseId} and categoryId=#{categoryId}
+	</delete>
+    <!-- 在发布商品页，获取该分类下，该会员的服务承诺列表
+        1.不需要订阅的适用所有类目的服务、
+	 * 2.自己加入的服务
+	 * 3、该分类下的共有服务
+    -->
+    <select id="catService" parameterType="map" resultType="map">
+		select promiseId,serviceName,required,description from promise_service where scope='all' AND needSubscibe='no'
+        UNION ALL
+        select ps.promiseId,ps.serviceName,ps.required,ps.description from promise_service ps
+        where ps.promiseId in (select promiseId from promise_service_seller where memberId=#{memberId})
+        UNION ALL
+        select ps.promiseId,ps.serviceName,ps.required,ps.description from promise_service ps
+        where ps.scope='appoint' AND needSubscibe='no'
+        and ps.promiseId in (select promiseId from promise_service_category where FIND_IN_SET(categoryId,queryAllCategoryParentId(#{categoryId})))
+	</select>
+    <!--获取这个分类下必选的服务id-->
+    <select id="mustSelectPromiseIds" parameterType="map" resultType="int">
+        select ps.promiseId from promise_service ps
+        where ps.promiseId in
+        (SELECT promiseId FROM promise_service_category WHERE FIND_IN_SET(categoryId,queryAllCategoryParentId(#{categoryId}))
+          UNION ALL
+          SELECT promiseId FROM promise_service_seller WHERE memberId=#{memberId}
+          UNION ALL
+          select promiseId from promise_service where scope='all' AND needSubscibe='no'
+        ) and ps.required='yes'
+    </select>
+    <!--
+        这个步骤主要是检验一遍，过滤掉不属于这个会员的服务，正常情况下是不存在这样的主要针对非法提交的数据，这里的数据由2部分组成
+			//1.选择的无需订阅的服务id
+			//2.需要订阅的服务（校验是不是该用户订阅的）
+    -->
+    <select id="hasSelected" parameterType="map" resultType="int">
+        (
+            select ps.promiseId from promise_service ps
+            where ps.promiseId in
+            <foreach collection="selected" item="onePromiseId" open="(" close=")" separator=",">
+                #{onePromiseId}
+            </foreach>
+            AND ps.needSubscibe='no'
+        )
+        UNION ALL
+        (
+            SELECT promiseId FROM promise_service_seller WHERE
+            promiseId in
+            <foreach collection="selected" item="onePromiseId" open="(" close=")" separator=",">
+                #{onePromiseId}
+            </foreach>
+            AND memberId=#{memberId}
+        )
+
+    </select>
+</mapper>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mappers.SkuMapper">
+    <!--获取购物车列表商品信息-->
+    <select id="getShoppingCartList" parameterType="map" resultType="map">
+        SELECT s.skuId,s.goodsId,g.title,g.mainImg,g.status as goodsStatus,s.skuProperties,s.price,s.redDeduction,s.sellerRedDeduction,/*IFNULL(acs.activePrice,"") as activePrice,*/s.status
+        from sku s
+        LEFT JOIN goods g on g.goodsId=s.goodsId
+        /*LEFT JOIN active_sku acs on acs.skuId=s.skuId*/
+        WHERE s.skuId IN
+        <foreach collection="array" item="skuId" open="(" close=")" separator=",">
+            #{skuId}
+        </foreach>
+    </select>
+    <!--查询sku属性名称-->
+    <select id="getSkuPropList" parameterType="map" resultType="map">
+        SELECT propertyId as pId,propertyName as pn from sale_property
+        WHERE propertyId IN
+        <foreach collection="skuPropIdSet" item="pId" open="(" close=")" separator=",">
+            #{pId}
+        </foreach>
+    </select>
+
+    <!--获取添加购物车时需要的信息，这个sku的商品店铺id，店铺名称，添加时冗余，方便后期查询-->
+    <select id="shoppingCartForAdd" parameterType="int" resultType="map">
+        SELECT memberId as shopMId,shopName from shop WHERE memberId=(SELECT memberId from goods WHERE goodsId=(SELECT goodsId from sku WHERE skuId=#{skuId}))
+    </select>
+
+    <!--清除购物车失效商品时，获取我的失效商品skuid-->
+    <select id="getDisabledSku" parameterType="map" resultType="int">
+        SELECT s.skuId from sku s
+        LEFT JOIN goods g on s.goodsId=g.goodsId
+        WHERE s.skuId IN
+        <foreach collection="array" item="skuId" open="(" close=")" separator=",">
+            #{skuId}
+        </foreach>
+        AND (s.status='delete' OR g.status='down')
+    </select>
+
+    <!--获取提交订单时需要的商品信息-->
+    <select id="getCommitSkuInfo" parameterType="map" resultType="com.maimaicn.goods.domain.MakeOrderSku">
+        SELECT s.skuId,s.goodsId,g.memberId as shopMId,g.freightId,g.wuliuParam,g.title,g.mainImg,g.status as goodsStatus,s.skuProperties,s.price,s.stock,s.status,
+        s.redDeduction,s.sellerRedDeduction,s.shareRebate,s.b2bPrice
+        from sku s
+        LEFT JOIN goods g on g.goodsId=s.goodsId
+        WHERE s.skuId IN
+        <foreach collection="list" item="sku" open="(" close=")" separator=",">
+            #{sku.skuId}
+        </foreach>
+    </select>
+
+    <!--减sku库存-->
+    <update id="subSkuStock" parameterType="map" >
+        <foreach collection="list" item="skuInfo">
+            UPDATE sku set stock=(stock-#{skuInfo.num}) WHERE skuId=#{skuInfo.skuId};
+        </foreach>
+    </update>
+    <!--加库存操作-->
+    <update id="addSkuStock" parameterType="map" >
+        <foreach collection="list" item="skuInfo">
+            UPDATE sku set stock=(stock+#{skuInfo.num}) WHERE skuId=#{skuInfo.skuId};
+        </foreach>
+    </update>
+    <!---->
+    <!---->
+    <!---->
+    <!---->
+    <!---->
+
+</mapper>

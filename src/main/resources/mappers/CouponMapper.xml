@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mappers.CouponMapper">
+	<!-- 获取优惠劵列表 -->
+	<select id="getCouponList" parameterType="map" resultType="map">
+		SELECT cd.cardId,c.name,c.type,cd.status,cd.amount,cd.threshold,cd.limitGet,cd.circulation,cd.haveGet,DATE_FORMAT(c.startTime,'%Y-%m-%d') as s_time,DATE_FORMAT(c.endTime,'%Y-%m-%d') as e_time
+		FROM coupon_denomination cd
+		LEFT JOIN coupon c on cd.couponId=c.couponId
+		WHERE c.memberId=#{memberId}
+		<if test="name != null and name != ''">
+			AND c.name like '${name}%'
+		</if>
+		<if test="status != null and status != ''">
+			AND cd.status=#{status}
+		</if>
+		<if test="type != null and type != ''">
+			AND c.type=#{type}
+		</if>
+		ORDER  BY c.createTime DESC, cd.cardId ASC
+		limit #{startNo},#{pageSize}
+	</select>
+
+	<!-- 插入一张优惠劵信息 -->
+	<insert id="insertCoupon" parameterType="com.maimaicn.goods.domain.Coupon" useGeneratedKeys="true" keyProperty="couponId">
+		  INSERT INTO coupon(name,type,startTime,endTime,createTime,memberId)
+		  VALUES (#{name},#{type},#{startTime},#{endTime},#{createTime},#{memberId})
+	</insert>
+	<!-- 批量插入优惠劵面额信息 -->
+	<insert id="batchInsertDenomination" parameterType="map" >
+		INSERT INTO coupon_denomination(couponId, amount, threshold, circulation, limitGet, status)
+		VALUES
+		<foreach collection="denominations" item="d" separator=",">
+			(#{couponId},#{d.amount},#{d.threshold},#{d.circulation},#{d.limitGet},#{d.status})
+		</foreach>
+	</insert>
+	<!-- 批量插入优惠劵适用的商品id -->
+	<insert id="batchInsertApplyGoods" parameterType="map" >
+		INSERT INTO coupon_apply_goods(goodsId, couponId) VALUES
+		<foreach collection="goodsIds" item="goodsId" separator=",">
+			(#{couponId},#{goodsId})
+		</foreach>
+	</insert>
+
+	<!-- 商家后台修改优惠劵发行量，限领次数 -->
+	<update id="updateDenomination" parameterType="map" >
+		UPDATE coupon_denomination SET circulation=#{circulation},limitGet=#{limitGet} WHERE
+		cardId=#{cardId} AND #{circulation} >= circulation
+	</update>
+
+	<!-- 获取一张优惠劵信息 -->
+	<select id="getOneCouponInfo" parameterType="int" resultType="map">
+		SELECT c.`name`,DATE_FORMAT(c.startTime,'%Y-%m-%d') as s_time,DATE_FORMAT(c.endTime,'%Y-%m-%d') as e_time,cardId,amount,threshold,circulation,limitGet from coupon_denomination cd
+		LEFT JOIN coupon c on c.couponId=cd.couponId
+		WHERE cardId=#{cardId}
+	</select>
+
+
+	<!-- -->
+	<!-- -->
+	<!-- -->
+
+
+
+</mapper>

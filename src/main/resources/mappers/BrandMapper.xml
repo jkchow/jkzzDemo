@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mappers.BrandMapper">
+	<!-- 获取后台品牌首页的数据 -->
+	<select id="getIndexData" parameterType="map" resultType="map">
+		<if test="categoryId == null">
+			select b.*,
+			(SELECT GROUP_CONCAT(categoryName) from category WHERE categoryId in (SELECT categoryId from brand_category WHERE brandId=b.brandId)) as categoryNames
+			from brand b
+			<where>
+				<if test="chName != null and chName != ''">
+					and b.chName like '%${chName}%'
+				</if>
+				<if test="enName != null and enName != ''">
+					and b.enName like '%${enName}%'
+				</if>
+			</where>
+			order BY b.brandId DESC
+			limit #{startNo},#{pageSize}
+		</if>
+		<if test="categoryId != null">
+			SELECT b.*,c.categoryName as categoryNames
+			FROM brand_category bc
+			LEFT JOIN brand b on b.brandId=bc.brandId
+			LEFT JOIN category c on bc.categoryId=c.categoryId
+			<where>
+				AND bc.categoryId=#{categoryId}
+				<if test="chName != null and chName != ''">
+					and b.chName like '%${chName}%'
+				</if>
+				<if test="enName != null and enName != ''">
+					and b.enName like '%${enName}%'
+				</if>
+			</where>
+			order BY b.brandId DESC
+			limit #{startNo},#{pageSize}
+		</if>
+	</select>
+	<!-- 获取后台品牌首页的数据 总数 -->
+	<select id="getIndexDataCount" parameterType="map" resultType="int">
+		<if test="categoryId == null">
+			select count(*) from brand b
+			<where>
+				<if test="chName != null and chName != ''">
+					and b.chName like '%${chName}%'
+				</if>
+				<if test="enName != null and enName != ''">
+					and b.enName like '%${enName}%'
+				</if>
+			</where>
+		</if>
+		<if test="categoryId != null">
+			SELECT count(*)
+			FROM brand_category bc
+			LEFT JOIN brand b on b.brandId=bc.brandId
+			<where>
+				AND bc.categoryId=#{categoryId}
+				<if test="chName != null and chName != ''">
+					and b.chName like '%${chName}%'
+				</if>
+				<if test="enName != null and enName != ''">
+					and b.enName like '%${enName}%'
+				</if>
+			</where>
+		</if>
+	</select>
+	<!--根据分类id获取该分类下所有的品牌下拉列表-->
+	<select id="combobox" parameterType="int" resultType="map">
+		select b.brandId,b.chName,b.enName from brand_category bc
+		LEFT JOIN brand b on b.brandId=bc.brandId
+		WHERE bc.categoryId=#{categoryId}
+	</select>
+
+	<!--给品牌添加经营类目-->
+	<insert id="addBusinessCat" parameterType="map">
+		INSERT INTO brand_category(brandId,categoryId) VALUES (#{brandId},#{categoryId});
+	</insert>
+	<!--获取该品牌经营的类目列表-->
+	<select id="getBusinessCatList" parameterType="int" resultType="map">
+		  SELECT bc.brandId,bc.categoryId,c.categoryName FROM brand_category bc
+		  LEFT JOIN category c on c.categoryId=bc.categoryId
+		  WHERE bc.brandId=#{brandId}
+	</select>
+	<!--删除品牌经营类目-->
+	<delete id="deleteBusinessCat" parameterType="map">
+		DELETE FROM brand_category WHERE brandId=#{brandId} and categoryId=#{categoryId}
+	</delete>
+
+	<!--  根据品牌id数组获取品牌图片  -->
+	<select id="getBrandImgs" parameterType="int" resultType="map">
+		select brandId,chName,logo from brand where brandId in
+		<foreach collection="list" item="brandId" open="(" close=")" separator=",">
+			#{brandId}
+		</foreach>
+	</select>
+
+	<!--获取品牌的简单信息，包括名称、logo图片-->
+	<select id="getBrandSimpleInfo" parameterType="map" resultType="map">
+		SELECT brandId,chName as name,logo from brand WHERE brandId IN
+		<foreach collection="list" item="brandId" open="(" close=")" separator=",">
+			#{brandId}
+		</foreach>
+	</select>
+</mapper>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mappers.GoodsPropertyValueMapper">
+	<!--  获取分类属性值集合，根据属性id -->
+	<select id="getValuesByPropertyId" parameterType="int" resultType="map">
+		select * from goods_property_value where propertyId=#{propertyId}
+		ORDER BY sortValue ASC
+	</select>
+</mapper>

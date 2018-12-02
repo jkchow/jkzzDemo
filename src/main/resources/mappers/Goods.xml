@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mappers.Goods">
+	<!--校验商品是否重复上传-->
+	<select id="isRepeatUpload" parameterType="map" resultType="int">
+		SELECT goodsId FROM goods WHERE memberId=#{memberId} and mainImg=#{mainImg} and whiteImg=#{whiteImg}
+	</select>
+
+	<!--上传商品-->
+	<insert id="saveGoods" parameterType="com.maimaicn.goods.domain.Goods" useGeneratedKeys="true" keyProperty="goodsId">
+		INSERT INTO goods(brandId,categoryId,memberId,title,mainImg,whiteImg,albumImgs,promiseServiceIds,freightId,wuliuParam,subStockType,startType,startTime)
+		VALUES (#{brandId},#{categoryId},#{memberId},#{title},#{mainImg},#{whiteImg},#{albumImgs},#{promiseServiceIds},#{freightId},#{wuliuParam},#{subStockType},#{startType},#{startTime})
+	</insert>
+	<!--保存商品属性list-->
+	<insert id="saveGoodsProperties" parameterType="map">
+		INSERT INTO goods_property_data(goodsId, propertyId, propertyName, valueName, valueJson) VALUES
+		<foreach collection="propsList" item="prop" separator=",">
+			(#{goodsId},#{prop.propertyId},#{prop.propertyName},#{prop.valueName},#{prop.valueJson})
+		</foreach>
+	</insert>
+	<!--保存sku信息-->
+	<insert id="saveSku" parameterType="map">
+		INSERT INTO sku(goodsId, skuProperties, price, stock,outerId, barcode,
+		shareRebate,redDeduction,sellerRedDeduction) VALUES
+		<foreach collection="skuList" item="sku" separator=",">
+			(#{goodsId},#{sku.skuProperties},#{sku.price},#{sku.stock},#{sku.outerId},#{sku.barcode}
+			,#{sku.shareRebate},#{sku.redDeduction},#{sku.sellerRedDeduction})
+		</foreach>
+	</insert>
+	<!--保存商品详情图片json-->
+	<insert id="saveDetailImgJson" parameterType="map">
+		INSERT INTO goods_detail_img(goodsId, imgJson) VALUES(#{goodsId},#{detailImgJson})
+	</insert>
+
+	<!--获取修改商品时需要的信息-->
+	<select id="getGoodsPropsForUpdate" parameterType="int" resultType="map">
+		SELECT propertyId, valueJson FROM goods_property_data WHERE goodsId=#{goodsId}
+	</select>
+	<select id="getSkuForUpdate" parameterType="int" resultType="map">
+		SELECT skuId, skuProperties,price,stock,outerId,barcode FROM sku WHERE goodsId=#{goodsId}
+	</select>
+	<select id="getDetailImgs" parameterType="int" resultType="string">
+		SELECT imgJson FROM goods_detail_img WHERE goodsId=#{goodsId}
+	</select>
+
+	<!--修改商品-->
+	<delete id="deleteGoodsProperties" parameterType="map">
+		DELETE FROM goods_property_data WHERE goodsId=#{goodsId}
+	</delete>
+	<delete id="deleteSku" parameterType="map">
+		UPDATE sku SET status='delete' WHERE goodsId=#{goodsId} AND skuId NOT IN
+		<foreach collection="skuList" item="sku" open="(" close=")" separator=",">
+			#{sku.skuId}
+		</foreach>
+	</delete>
+	<update id="updateSku" parameterType="map">
+		<foreach collection="skuList" item="sku" >
+			UPDATE sku
+			<set>
+				<if test="sku.skuProperties != null and sku.skuProperties != ''">
+					skuProperties=#{sku.skuProperties},
+				</if>
+				<if test="sku.price != null">
+					price=#{sku.price},
+				</if>
+				<if test="sku.stock != null">
+					stock=#{sku.stock},
+				</if>
+				<if test="sku.outerId != null and sku.outerId != ''">
+					outerId=#{sku.outerId},
+				</if>
+				<if test="sku.barcode != null and sku.barcode != ''">
+					barcode=#{sku.barcode},
+				</if>
+				<if test="sku.shareRebate != null">
+					shareRebate=#{sku.shareRebate},
+				</if>
+				<if test="sku.redDeduction != null">
+					redDeduction=#{sku.redDeduction},
+				</if>
+				<if test="sku.sellerRedDeduction != null">
+					sellerRedDeduction=#{sku.sellerRedDeduction},
+				</if>
+			</set>
+			WHERE goodsId=#{goodsId} and skuId=#{sku.skuId};
+		</foreach>
+	</update>
+	<update id="updateDetailImgJson" parameterType="map">
+		UPDATE goods_detail_img SET imgJson=#{detailImgJson} WHERE goodsId=#{goodsId}
+	</update>
+
+	<!--获取商品的基本信息，包含商品的goodsId，主图，标题，价格（取最大的sku价格）-->
+	<select id="getGoodsInfo" parameterType="map" resultType="map">
+		SELECT goodsId,title,mainImg,categoryId FROM goods WHERE
+		goodsId IN
+		<foreach collection="array" item="goodsId" open="(" close=")" separator=",">
+			#{goodsId}
+		</foreach>
+	</select>
+
+	<!--获取商品id数组中商品sku价格的最大价格-->
+	<select id="getGoodsSkuMaxPrice" parameterType="map" resultType="map">
+		SELECT goodsId,max(price) as h_price,max(redDeduction) as rd,max(sellerRedDeduction) as srd FROM sku WHERE goodsId IN
+		<foreach collection="array" item="goodsId" open="(" close=")" separator=",">
+			#{goodsId}
+		</foreach>
+		GROUP BY goodsId
+	</select>
+	<select id="getGoodsSalesStatistics" parameterType="map" resultType="map">
+		SELECT goodsId,sales FROM goods_statistics WHERE goodsId IN
+		<foreach collection="array" item="goodsId" open="(" close=")" separator=",">
+			#{goodsId}
+		</foreach>
+	</select>
+
+	<!--获取商品solr发布时需要的信息-->
+	<select id="getSolrGoodsInfo" parameterType="int" resultType="map">
+		SELECT g.goodsId,g.title,g.brandId,g.categoryId as cateId,g.mainImg,g.memberId as shopMId,g.uploadTime as createTime
+		,b.chName as brandName,c.categoryName as cateName,gc.sales
+		from goods g
+		LEFT JOIN brand b on b.brandId=g.brandId
+		LEFT JOIN category c on c.categoryId=g.categoryId
+		LEFT JOIN goods_statistics gc on gc.goodsId=g.goodsId
+		WHERE g.goodsId=#{goodsId}
+	</select>
+	<select id="getSolrPriceInfo" parameterType="int" resultType="map">
+		SELECT min(price) as l_price,max(price) as h_price FROM sku WHERE
+		goodsId=#{goodsId}
+	</select>
+	<select id="getSolrPropertiesInfo" parameterType="int" resultType="map">
+		SELECT valueName,valueJson from goods_property_data WHERE goodsId=#{goodsId} and propertyId in
+		(
+		SELECT gp.propertyId from goods_property gp
+		WHERE FIND_IN_SET(gp.categoryId,queryAllCategoryParentId(#{categoryId})) AND gp.isSearch='yes'
+		)
+	</select>
+	<select id="getGoodsImgStorage" parameterType="map" resultType="map">
+		select title as mainPageSourceName,mainImg as imgAUrl,status
+		from goods gs
+		where 1=1
+		<if test="memberId!=null and memberId!=''">
+			and gs.memberId=#{memberId}
+		</if>
+		<if test="imgName!=null and imgName!=''">
+			and gs.title like "%"#{imgName}"%"
+		</if>
+		<!--<if test="categoryId == null">
+			and gs.categoryId is null
+		</if>-->
+		<if test="categoryId != null">
+			and gs.categoryId=#{categoryId}
+		</if>
+		    and status='up'
+		order by uploadTime desc limit #{startNo},#{pageSize}
+	</select>
+	<select id="getGoodsImgStorageCount" parameterType="map" resultType="int">
+		select count(*) from goods gs
+		where 1=1
+		<if test="memberId!=null and memberId!=''">
+			and gs.memberId=#{memberId}
+		</if>
+		<if test="imgName!=null and imgName!=''">
+			and gs.imgName like "%"#{title}"%"
+		</if>
+		<if test="categoryId == null">
+			and gs.categoryId is null
+		</if>
+		<if test="categoryId != null">
+			and gs.categoryId=#{categoryId}
+		</if>
+		and status='up'
+		order by uploadTime desc limit #{startNo},#{pageSize}
+	</select>
+	<!--获取商品上传时校验sku信息时需要的sku数据-->
+	<select id="getSkuPropForVerify" parameterType="int" resultType="com.maimaicn.goods.domain.SalePropForVerity">
+		SELECT sp.propertyId,sp.propertyName,sp.isRemark,sp.isRequired,sp.canCustomValue,sp.needPropertyPic
+        from sale_property sp
+        WHERE FIND_IN_SET(sp.categoryId,queryAllCategoryParentId(#{categoryId})) AND sp.status='enabled'
+	</select>
+
+
+	<!--根据ID获取全部商品信息-->
+	<select id="getAllGoodsInfo" parameterType="int" resultType="map">
+		select g.goodsId,g.brandId,g.categoryId,g.memberId,g.title,g.status,b.chName,c.categoryName from goods g   LEFT  join brand b  on g.brandId=b.brandId
+		LEFT join category c on  g.categoryId=c.categoryId
+		where g.goodsId=#{goodsId}
+	</select>
+	<!---->
+	<!---->
+	<!---->
+	<!---->
+
+
+</mapper>

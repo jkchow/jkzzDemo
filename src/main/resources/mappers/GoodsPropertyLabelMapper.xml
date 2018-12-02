@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mappers.GoodsPropertyLabelMapper">
+	<!-- 根据分类id获取该分类以及该分类的上级分类的所以属性标签 -->
+	<select id="getPageVO" parameterType="map" resultType="map">
+		select gpl.*,gc.categoryName
+		from goods_property_label gpl
+		left join category gc on gc.categoryId=gpl.categoryId
+		<where>
+			<if test="categoryId != null">
+				and FIND_IN_SET(gpl.categoryId,queryAllCategoryParentId(#{categoryId}))
+			</if>
+			<if test="labelName != null and labelName != ''">
+				and gpl.labelName like '%${labelName}%'
+			</if>
+		</where>
+		ORDER BY gpl.sortValue ASC
+		limit #{startNo},#{pageSize}
+	</select>
+	<select id="getPageVOCount" parameterType="map" resultType="int">
+		select count(*)
+		from goods_property_label gpl
+		<where>
+			<if test="categoryId != null">
+				and FIND_IN_SET(gpl.categoryId,queryAllCategoryParentId(#{categoryId}))
+			</if>
+			<if test="labelName != null and labelName != ''">
+				and gpl.labelName like '%${labelName}%'
+			</if>
+		</where>
+	</select>
+	<!-- 根据分类id获取属性标签的下拉框数据，包含该分类的所有上级的所有属性标签 -->
+	<select id="getComboboxData" parameterType="int" resultType="map">
+		select gpl.labelId,gpl.labelName
+		from goods_property_label gpl
+		where FIND_IN_SET(gpl.categoryId,queryAllCategoryParentId(#{categoryId}))
+		ORDER BY gpl.sortValue ASC
+	</select>
+</mapper>

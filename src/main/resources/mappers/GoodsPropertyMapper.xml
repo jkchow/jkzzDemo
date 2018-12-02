@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mappers.GoodsPropertyMapper">
+	<!-- 根据分类id获取该分类下的所有属性列表 -->
+	<select id="getPropertyPage" parameterType="int" resultType="map">
+		<if test="valueId == null">
+			select gp.*,gc.categoryName,gpl.labelName
+			from goods_property gp
+			left join category gc on gc.categoryId=gp.categoryId
+			left join goods_property_label gpl on gpl.labelId=gp.labelId
+			<where>
+				<if test="categoryId != null">
+					FIND_IN_SET(gp.categoryId,queryAllCategoryParentId(#{categoryId}))/* and gp.brandId is null and gp.propertyValueId is null*/
+				</if>
+				<if test="brandId != null">
+					or gp.brandId=#{brandId}
+				</if>
+				<if test="propertyName != null and propertyName != ''">
+					and propertyName like '%${propertyName}%'
+				</if>
+			</where>
+			order by gpl.sortValue,gp.sortValue ASC
+			limit #{startNo},#{pageSize}
+		</if>
+		<if test="valueId != null">
+			select gp.*,gc.categoryName,gpl.labelName
+			from goods_property gp
+			left join category gc on gc.categoryId=gp.categoryId
+			left join goods_property_label gpl on gpl.labelId=gp.labelId
+			where gp.valueId=#{valueId}
+			<if test="propertyName != null and propertyName != ''">
+				and propertyName like '%${propertyName}%'
+			</if>
+			order by gp.propertyId desc
+			limit #{startNo},#{pageSize}
+		</if>
+	</select>
+	<select id="getPropertyPageCount" parameterType="map" resultType="int">
+		<if test="valueId == null">
+			select count(*)
+			from goods_property gp
+			<where>
+				<if test="categoryId != null">
+					FIND_IN_SET(gp.categoryId,queryAllCategoryParentId(#{categoryId}))/* and gp.brandId is null and gp.propertyValueId is null*/
+				</if>
+				<if test="brandId != null">
+					or gp.brandId=#{brandId}
+				</if>
+			</where>
+		</if>
+		<if test="valueId != null">
+			select count(*)
+			from goods_property gp
+			where gp.valueId=#{valueId}
+		</if>
+	</select>
+
+	<!--商品属性、值集合map-->
+	<resultMap id="goodsPropsValuesMap" type="map">
+		<id property="propertyId" column="propertyId"/>
+		<result property="propertyName" column="propertyName"/>
+		<result property="inputType" column="inputType"/>
+		<result property="dataType" column="dataType"/>
+		<result property="isRequired" column="isRequired"/>
+		<result property="custom" column="custom"/>
+		<result property="belong" column="belong"/>
+		<result property="placeholder" column="placeholder"/>
+		<result property="tip" column="tip"/>
+		<result property="unit" column="unit"/>
+		<collection property="values" column="values" ofType="map" javaType="list" >
+			<id column="valueId" property="valueId"/>
+			<result property="valueName" column="valueName"/>
+		</collection>
+	</resultMap>
+	<!--根据分类id、品牌id，属性值id分别拿对应的商品属性，属性值集合，不能同时取，单次只能有一个id查询-->
+	<select id="getCatGoodsProps" parameterType="map" resultMap="goodsPropsValuesMap">
+		SELECT gp.propertyId,gp.propertyName,gp.inputType,gp.dataType,gp.isRequired,gp.custom,gp.belong,gp.placeholder,gp.tip,gp.unit,
+		gpv.valueId,gpv.valueName
+		FROM goods_property gp
+		LEFT JOIN goods_property_value gpv on gpv.propertyId=gp.propertyId
+		LEFT JOIN goods_property_label gpl on gp.labelId=gpl.labelId
+		<where>
+			<if test="categoryId != null">
+				AND FIND_IN_SET(gp.categoryId,queryAllCategoryParentId(#{categoryId}))
+			</if>
+			<if test="brandId != null">
+				AND gp.brandId=#{brandId}
+			</if>
+			<if test="valueId != null">
+				AND gp.valueId=#{valueId}
+			</if>
+		</where>
+		ORDER BY gpl.sortValue,gp.sortValue,gpv.valueName ASC
+	</select>
+</mapper>

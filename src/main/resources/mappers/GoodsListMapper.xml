@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mappers.GoodsListMapper">
+
+	<!--获取商品列表-->
+	<select id="goodsList" parameterType="map" resultType="map">
+		SELECT g.goodsId,g.title,g.mainImg,DATE_FORMAT(g.uploadTime,'%Y-%m-%d %H:%i') as uploadTime,g.status,ifnull(gs.sales,0) as sales
+		from goods g
+		left JOIN goods_statistics gs on gs.goodsId=g.goodsId
+		WHERE g.memberId=#{memberId} AND g.status!='delete'
+		<if test="goodsId != null">
+			AND g.goodsId=#{goodsId}
+		</if>
+		<if test="status != null and status != ''">
+			AND g.status=#{status}
+		</if>
+		<if test="createTime != null">
+			AND g.uploadTime &gt; #{createTime}
+		</if>
+		<if test="goodsName != null and goodsName != ''">
+			AND g.title LIKE '%${goodsName}%'
+		</if>
+		ORDER BY g.uploadTime DESC
+		limit #{startNo},#{pageSize}
+	</select>
+	<select id="getTotalStock" parameterType="map" resultType="map">
+		SELECT goodsId,count(stock) as t_stock FROM sku WHERE
+		goodsId IN
+		<foreach collection="list" item="goods" separator="," open="(" close=")">
+			#{goods.goodsId}
+		</foreach>
+		GROUP BY goodsId
+	</select>
+	<select id="getPriceRange" parameterType="map" resultType="map">
+		SELECT goodsId,min(price) as l_price,max(price) as h_price,min(b2bPrice) as b2b_l_price,max(b2bPrice) as b2b_h_price FROM sku WHERE
+		goodsId IN
+		<foreach collection="list" item="goods" separator="," open="(" close=")">
+			#{goods.goodsId}
+		</foreach>
+		GROUP BY goodsId
+	</select>
+
+
+	<!--获取修改sku信息的原始数据，用于回显-->
+	<select id="isSellerGoods" parameterType="map" resultType="int">
+		SELECT goodsId FROM goods WHERE goodsId=#{goodsId} AND memberId=#{sellerMemberId}
+	</select>
+	<select id="getSkuUpdateInfo" parameterType="int" resultType="map">
+		SELECT skuId,price as b2cp,stock,b2bPrice as b2bp,shareRebate as sr,sellerRedDeduction as srd,redDeduction as rd,skuProperties FROM sku WHERE goodsId=#{goodsId} AND status='normal'
+	</select>
+	<!--查询sku属性名称-->
+	<select id="getSkuPropList" parameterType="map" resultType="map">
+		SELECT propertyId as pId,propertyName as pn from sale_property
+		WHERE propertyId IN
+		<foreach collection="skuPropIdSet" item="pId" open="(" close=")" separator=",">
+			#{pId}
+		</foreach>
+	</select>
+	<!--修改sku信息-->
+	<update id="updateSku" parameterType="map">
+		<foreach collection="updateSkuList" item="sku">
+			UPDATE sku
+			<set>
+				<if test="sku.stock != null">
+					stock=#{sku.stock},
+				</if>
+				<if test="sku.b2cp != null">
+					price=#{sku.b2cp},
+				</if>
+				<if test="sku.b2bp != null">
+					b2bPrice=#{sku.b2bp},
+				</if>
+				<if test="sku.sr != null">
+					shareRebate=#{sku.sr},
+				</if>
+				<if test="sku.srd != null">
+					sellerRedDeduction=#{sku.srd},
+				</if>
+				<if test="sku.rd != null">
+					redDeduction=#{sku.rd},
+				</if>
+			</set>
+			WHERE goodsId=#{goodsId} AND skuId=#{sku.skuId};
+		</foreach>
+	</update>
+	<!--根据条件获取商品列表-->
+	<select id="goodsListByCategory" parameterType="map" resultType="map">
+		SELECT g.goodsId,g.title,g.status,g.brandId,g.categoryId
+		from goods g
+		WHERE g.memberId=#{memberId}
+		<if test="categoryId!=null">
+			and g.categoryId=#{categoryId}
+		</if>
+		<if test="goodsIds!=null">
+			and g.goodsId not in
+			<foreach collection="goodsIds" item="goodsId" open="(" separator="," close=")">
+				#{goodsId}
+			</foreach>
+		</if>
+		<if test="goodsName!=null">
+			and g.title LIKE concat('%',#{goodsName},'%')
+		</if>
+		ORDER BY g.uploadTime DESC
+		limit #{startNo},#{pageSize}
+	</select>
+
+	<!--删除一组商品，逻辑删除-->
+	<update id="deleteGoods" parameterType="map">
+		<foreach collection="goodsIds" item="goodsId" >
+			UPDATE goods SET status='delete' WHERE memberId=#{sellerMemberId} AND goodsId=#{goodsId};
+		</foreach>
+	</update>
+
+	<!--修改商品状态-->
+	<update id="updateStatus" parameterType="map" >
+		UPDATE goods SET status=#{status} WHERE memberId=#{sellerMemberId} AND goodsId=#{goodsId} AND status!='delete'
+	</update>
+
+    <!--查询条件 -->
+    <sql id="goodsAdminWhere">
+        <where>
+            <if test="memberId != null ">
+                g.memberId =#{memberId}
+            </if>
+            <if test="goodsId != null ">
+                AND g.goodsId =#{goodsId}
+            </if>
+            <if test="startType != null ">
+                AND g.startType =#{startType}
+            </if>
+            <if test="status != null ">
+                AND g.status =#{status}
+            </if>
+        </where>
+    </sql>
+	<!--获取商品列表-->
+	<select id="goodsAdminList" parameterType="map" resultType="map">
+		SELECT g.goodsId,g.brandId,g.categoryId,g.memberId,g.title,g.startType,g.status,DATE_FORMAT(g.uploadTime,'%Y-%m-%d %H:%i') as uploadTime,
+		DATE_FORMAT(g.startTime,'%Y-%m-%d %H:%i') as startTime
+		from goods g
+        <include refid="goodsAdminWhere"/>
+		limit #{startNo},#{pageSize}
+	</select>
+
+	<!-- 获取后台商品首页的数据 总数 -->
+	<select id="goodsAdminListCount" parameterType="map" resultType="int">
+		SELECT count(1)	from goods g
+        <include refid="goodsAdminWhere"/>
+	</select>
+
+	<!--查询商品品牌名称-->
+	<select id="getBrandListByIds" parameterType="java.util.Set" resultType="com.maimaicn.goods.domain.Brand">
+		SELECT brandId ,chName ,enName from brand
+		WHERE brandId IN
+		<foreach collection="collection" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</select>
+	<!--查询商品类别-->
+	<select id="getCategoryListByIds" parameterType="java.util.Set" resultType="com.maimaicn.goods.domain.Category">
+		SELECT categoryId ,categoryName  from category
+		WHERE categoryId IN
+		<foreach collection="collection" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</select>
+    <!--获取商品详情-->
+    <select id="getGoodsDetailById" parameterType="Integer" resultType="com.maimaicn.goods.domain.Goods">
+        SELECT goodsId,brandId,categoryId,title,mainImg,albumImgs FROM goods WHERE goodsId=#{goodsId} ;
+    </select>
+
+    <!--获取商品sku详情-->
+    <select id="getSkuByGoodsId" parameterType="Integer" resultType="com.maimaicn.goods.domain.Sku">
+        SELECT skuId,skuProperties,stock FROM sku WHERE goodsId=#{goodsId} ;
+    </select>
+    <!--通过id获取属性值列表-->
+    <select id="getSalePropListByIds" parameterType="java.util.Set" resultType="com.maimaicn.goods.domain.SaleProperty">
+        SELECT propertyId ,propertyName  from sale_property
+        WHERE propertyId IN
+        <foreach collection="collection" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+	<!---->
+
+
+</mapper>

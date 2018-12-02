@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mappers.GoodsDetailMapper">
+
+	<!--商品详情页接口数据，获取商品主要信息，包含标题，主图，白底图，相册图，商品状态-->
+	<select id="getDetailMainInfo" parameterType="int" resultType="map">
+		SELECT goodsId,title,mainImg,whiteImg,albumImgs,slogan,sellPoint,promiseServiceIds,memberId as smId,status FROM goods WHERE goodsId=#{goodsId}
+	</select>
+	<!--商品想起页，获取收藏数，销售数-->
+	<select id="getSalesCollect" parameterType="int" resultType="map">
+		SELECT sales,collects from goods_statistics WHERE goodsId=#{goodsId}
+	</select>
+	<select id="getDetailService" parameterType="map" resultType="map">
+		SELECT serviceName as name,IFNULL(serviceIcon,"") as icon,description as 'desc',IFNULL(detailUrl,"") as url from promise_service
+		WHERE promiseId IN
+		<foreach collection="array" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</select>
+
+	<!--  获取商品详情页数据，商品属性数据 -->
+	<resultMap id="propertiesMap" type="map">
+		<id column="id" property="id"></id>
+		<result column="label" property="label"></result>
+		<collection property="values" column="values" ofType="map" javaType="list">
+			<id column="pId" property="pId"></id>
+			<result column="k" property="k"></result>
+			<result column="v" property="v"></result>
+		</collection>
+	</resultMap>
+	<select id="getDetailProperties" parameterType="int" resultMap="propertiesMap">
+		SELECT IFNULL(gpl.labelId,0) as id ,IFNULL(gpl.labelName,"基本参数") as label,gpd.propertyId as pId,gpd.propertyName as k, gpd.valueName as v from goods_property_data gpd
+		LEFT JOIN goods_property gp on gp.propertyId=gpd.propertyId
+		LEFT JOIN goods_property_label gpl on gpl.labelId=gp.labelId
+		WHERE goodsId=#{goodsId}
+		ORDER BY gpl.sortValue asc,gp.sortValue asc
+	</select>
+
+	<!--获取商品详情页，详情描述信息，图片列表-->
+	<select id="getGoodsDescriptionImg" parameterType="int" resultType="string">
+		SELECT imgJson from goods_detail_img WHERE goodsId=#{goodsId}
+	</select>
+
+	<!--获取sku详情页信息-->
+	<select id="getSkuInfo" parameterType="int" resultType="map">
+		SELECT skuId,skuProperties as skuInfo,price,stock,redDeduction,shareRebate,sellerRedDeduction FROM sku WHERE goodsId=#{goodsId}
+	</select>
+	<select id="getSkuPropNames" parameterType="map" resultType="map">
+		SELECT propertyId as pId,propertyName as name from sale_property
+		WHERE propertyId IN
+		<foreach collection="array" item="pId" open="(" close=")" separator=",">
+			#{pId}
+		</foreach>
+		ORDER BY sortValue asc
+	</select>
+
+	<!--详情页获取店铺信息，包括店铺logo，名称，是否质保-->
+	<select id="getShopInfo" parameterType="long" resultType="map">
+		  SELECT shopName,IFNULL(logo,"") as logo,isPledge FROM shop WHERE memberId=#{smId}
+	</select>
+
+
+
+
+</mapper>

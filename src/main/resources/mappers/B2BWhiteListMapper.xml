@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mappers.B2BWhiteListMapper">
+	<!-- 查看这个会员是不是卖家的b2b买家 -->
+	<select id="isB2BBuyer" parameterType="map" resultType="long">
+		SELECT buyerMemberId FROM  b2bwhitelist WHERE buyerMemberId=#{buyerMemberId} AND sellerMemberId=#{sellerMemberId}
+	</select>
+
+</mapper>

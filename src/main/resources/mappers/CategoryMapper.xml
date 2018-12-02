@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="mappers.CategoryMapper">
+    <!-- 获取商品类目后台主页数据 -->
+    <select id="getIndexData" parameterType="map" resultType="map">
+        select gc.categoryId,gc.categoryName,if((select count(*) from category where parentId=gc.categoryId) &gt; 0,'closed','open') as state
+        from category gc
+        <where>
+            <if test="parentId == null">
+                gc.parentId is null
+            </if>
+            <if test="parentId != null">
+                gc.parentId=#{parentId}
+            </if>
+        </where>
+    </select>
+    <!--获取分类下拉框树形列表-->
+    <select id="combotree" parameterType="map" resultType="map">
+        select gc.categoryId as id,gc.categoryName as text,if((select count(*) from category where parentId=gc.categoryId) &gt; 0,'closed','open') as state
+        from category gc
+        <where>
+            <if test="parentId == null">
+                gc.parentId is null
+            </if>
+            <if test="parentId != null">
+                gc.parentId=#{parentId}
+            </if>
+        </where>
+    </select>
+
+    <!--商品搜索页相关-->
+    <!--获取这个分类下的所有品牌-->
+    <select id="getBrandForSearch" parameterType="int" resultType="map">
+        SELECT b.brandId,b.chName,IFNULL(b.enName,"") as enName,IFNULL(b.logo,"") as logo FROM brand_category bc
+        LEFT JOIN brand b on b.brandId=bc.brandId
+        WHERE categoryId=#{categoryId}
+    </select>
+    <!--获取这个分类的子分类-->
+    <select id="getSonCatForSearch" parameterType="int" resultType="map">
+        SELECT categoryId as catId,categoryName as catName from category WHERE parentId=#{categoryId}
+    </select>
+    <!--叶子分类就获取兄弟分类-->
+    <select id="getSiblingCatForSearch" parameterType="int" resultType="map">
+        SELECT categoryId as catId,categoryName as catName from category WHERE parentId=
+        (SELECT parentId from category WHERE categoryId=#{categoryId})
+    </select>
+    <!--获取这个分类下的可搜索的商品属性，及属性参数值-->
+    <resultMap id="searchPropValMap" type="map">
+        <id property="pId" column="pId"/>
+        <result property="pn" column="pn"/>
+        <collection property="values" column="values" ofType="map" javaType="list" >
+            <id column="vId" property="vId"/>
+            <result property="vn" column="vn"/>
+        </collection>
+    </resultMap>
+    <select id="getParamsForSearch" parameterType="int" resultMap="searchPropValMap">
+        SELECT gp.propertyId as pId,gp.propertyName as pn,gpv.valueId as vId,gpv.valueName as vn from goods_property gp
+        LEFT JOIN goods_property_value gpv on gpv.propertyId=gp.propertyId
+        WHERE FIND_IN_SET(gp.categoryId,queryAllCategoryParentId(#{categoryId})) AND gp.isSearch='yes' AND gpv.valueId IS NOT NULL
+    </select>
+
+
+    <!--上传商品，选择分类需要的数据-->
+    <select id="getByPId" parameterType="map" resultType="map">
+        select gc.categoryId as cateId,gc.categoryName as catename
+        from category gc
+        <where>
+            <if test="parentId == null">
+                gc.parentId is null
+            </if>
+            <if test="parentId != null">
+                gc.parentId=#{parentId}
+            </if>
+        </where>
+    </select>
+
+    <select id="getAllCategory" parameterType="map" resultType="int">
+        SELECT parentId from category where categoryId=#{categoryId}
+    </select>
+
+    <!--通过叶子节点，获取该分类的所有父级名称-->
+    <select id="getCategoryParents" parameterType="int" resultType="com.maimaicn.goods.domain.Category">
+        SELECT categoryId,categoryName,parentId FROM category WHERE FIND_IN_SET(categoryId,queryAllCategoryParentId(#{categoryId}))
+    </select>
+
+
+</mapper>

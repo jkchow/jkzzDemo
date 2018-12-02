@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mappers.FreightTemplate">
+    <!--获取用户的指定名称的模板id，用于校验该模板名称是否已经存在-->
+    <select id="getTemplateByName" parameterType="map" resultType="int">
+        SELECT templateId FROM freight_template WHERE templateName=#{templateName} AND memberId=#{memberId}
+    </select>
+    <!--保存一个基本运费信息 -->
+    <insert id="save_freight_template" parameterType="com.maimaicn.goods.domain.FreightTemplate" useGeneratedKeys="true"
+            keyColumn="templateId" keyProperty="templateId">
+        INSERT INTO freight_template(templateName,locationId,deliveryTime,frank,priceType,freeConditions,memberId)
+        VALUES(#{templateName},#{locationId},#{deliveryTime},#{frank},#{priceType},#{freeConditions},#{memberId})
+    </insert>
+    <!--保存模板详情-->
+    <insert id="save_freight_template_details" parameterType="list" useGeneratedKeys="true" keyProperty="detailId">
+        INSERT INTO freight_detail(templateId,isDefault,first,firstPrice,subsequent,subsequentPrice) VALUES
+        <foreach collection="list" separator="," item="detail">
+            (#{detail.templateId},#{detail.isDefault},#{detail.first},#{detail.firstPrice},#{detail.subsequent},#{detail.subsequentPrice})
+        </foreach>
+    </insert>
+    <insert id="save_freight_template_details_locations" parameterType="list">
+        <foreach collection="list" separator=";" item="item">
+            INSERT INTO freight_detail_location(detailId,locationId) VALUES
+            <foreach collection="item.locationIds" separator="," item="locationId">
+                (#{item.detailId},#{locationId})
+            </foreach>
+        </foreach>
+    </insert>
+    <!--保存条件包邮详情-->
+    <insert id="save_freight_template_free_conditions" parameterType="list" useGeneratedKeys="true"
+            keyProperty="conditionsId">
+        INSERT INTO freight_free_conditions(templateId,conditionsType,priceTypeValue,amount,isDefault) VALUES
+        <foreach collection="list" separator="," item="conditions">
+            (#{conditions.templateId},#{conditions.conditionsType},#{conditions.priceTypeValue},#{conditions.amount},#{conditions.isDefault})
+        </foreach>
+    </insert>
+    <insert id="save_freight_template_free_conditions_locations" parameterType="list">
+        <foreach collection="list" separator=";" item="item">
+            INSERT INTO freight_free_conditions_location(conditionsId,locationId) VALUES
+            <foreach collection="item.locationIds" separator="," item="locationId">
+                (#{item.conditionsId},#{locationId})
+            </foreach>
+        </foreach>
+    </insert>
+
+    <!--修改运费模板-->
+    <update id="update_freight_template" parameterType="com.maimaicn.goods.domain.FreightTemplate" >
+        update freight_template
+          <set>
+            <if test="templateName != null">templateName=#{templateName},</if>
+            <if test="locationId != null">locationId=#{locationId},</if>
+            <if test="deliveryTime != null">deliveryTime=#{deliveryTime},</if>
+            <if test="frank != null">frank=#{frank},</if>
+            <if test="priceType != null">priceType=#{priceType},</if>
+            <if test="freeConditions != null">freeConditions=#{freeConditions}</if>
+          </set>
+        where templateId=#{templateId}
+    </update>
+    <!--删除运费模板 详情和地址-->
+    <delete id="delete_freight_detail_and_location" parameterType="int">
+        DELETE freight_detail_location,freight_detail from freight_detail  LEFT JOIN freight_detail_location  ON freight_detail_location.detailId=freight_detail.detailId
+        WHERE freight_detail.templateId=#{templateId};
+    </delete>
+    <!--删除指定条件包邮，特定条件包邮信息-->
+    <delete id="delete_freight_free_conditions_and_location" parameterType="int">
+        DELETE freight_free_conditions_location,freight_free_conditions from  freight_free_conditions  LEFT JOIN freight_free_conditions_location
+        ON freight_free_conditions_location.conditionsId=freight_free_conditions.conditionsId WHERE freight_free_conditions.templateId=#{templateId};
+    </delete>
+    <!--通过模板id查找以前数据-->
+    <select id="getTemplateById" parameterType="int" resultType="map">
+        SELECT freeConditions,frank FROM freight_template WHERE templateId=#{templateId};
+    </select>
+    <!--通过模板id删除数据-->
+    <delete id="delete_freight_template" parameterType="int">
+        DELETE FROM freight_template WHERE templateId=#{templateId};
+    </delete>
+    <!--通过模板Id 获取模板-->
+    <select id="get_freight_template_by_id" parameterType="map" resultType="map">
+        SELECT templateId,templateName,locationId,deliveryTime,frank,priceType,freeConditions FROM freight_template WHERE templateId=#{templateId};
+    </select>
+
+    <!--获取运费模板详情列表-->
+    <resultMap id="freightDetailListMap" type="map">
+        <!--<id property="detailId" column="detailId"/>
+        <result property="templateId" column="templateId"/>-->
+        <result property="isDefault" column="isDefault"/>
+        <result property="first" column="first"/>
+        <result property="firstPrice" column="firstPrice"/>
+        <result property="subsequent" column="subsequent"/>
+        <result property="subsequentPrice" column="subsequentPrice"/>
+        <collection property="locations" javaType="list" ofType="string">
+            <!--<id property="detailId" column="detailId"/>-->
+            <id property="locationId" column="locationId"/>
+        </collection>
+    </resultMap>
+    <select id="get_freight_detail_list" parameterType="int" resultMap="freightDetailListMap">
+        SELECT  freight_detail.detailId,freight_detail.templateId,freight_detail.isDefault,freight_detail.first,freight_detail.firstPrice,
+        freight_detail.subsequent,freight_detail.subsequentPrice,freight_detail_location.locationId
+        FROM freight_detail LEFT JOIN  freight_detail_location
+        ON freight_detail.detailId = freight_detail_location.detailId WHERE freight_detail.templateId=#{templateId};
+    </select>
+
+    <!--获取运费模板条件详情列表-->
+    <resultMap id="freightConditionDetailListMap" type="map">
+        <!--<id property="detailId" column="detailId"/>-->
+        <result property="conditionsType" column="conditionsType"/>
+        <result property="priceTypeValue" column="priceTypeValue"/>
+        <result property="amount" column="amount"/>
+        <result property="isDefault" column="isDefault"/>
+        <collection property="locations" javaType="list" ofType="string">
+            <!--<id property="detailId" column="detailId"/>-->
+            <id property="locationId" column="locationId"/>
+        </collection>
+    </resultMap>
+    <select id="get_freight_condition_detail_list" parameterType="int" resultMap="freightConditionDetailListMap">
+        SELECT  ffc.conditionsType,ffc.priceTypeValue,ffc.amount,ffc.isDefault,ffcl.locationId
+        FROM freight_free_conditions ffc LEFT JOIN  freight_free_conditions_location ffcl
+        ON ffc.conditionsId = ffcl.conditionsId WHERE ffc.templateId=#{templateId};
+    </select>
+
+
+
+
+    <!--添加商品时获取我的运费模版-->
+    <select id="getMyTempCombo" parameterType="map" resultType="map">
+        select ft.templateId as tid,ft.templateName as tn,ft.locationId as lid,ft.frank,ft.priceType as pt,ft.freeConditions as fc,
+        fd.`first`,fd.firstPrice as fp,fd.subsequent as ss,fd.subsequentPrice as ssp
+        from freight_template ft
+        left join freight_detail fd on fd.templateId = ft.templateId
+        where (fd.isDefault='yes' OR fd.isDefault is null) AND ft.memberId=${memberId}
+    </select>
+
+    <!--下单时算运费模板信息-->
+    <select id="getOrderFreightInfo" parameterType="map" resultType="map">
+        SELECT templateId as freightId,deliveryTime,frank,priceType,freeConditions from freight_template
+        WHERE templateId in
+        <foreach collection="list" item="skuFreight" open="(" close=")" separator=",">
+            #{skuFreight.freightId}
+        </foreach>
+    </select>
+    <!--根据地址id和运费模板id来获取该条件下的包邮条件-->
+    <select id="getThisFreeCondition" parameterType="map" resultType="com.maimaicn.goods.domain.FreightFreeConditions">
+        SELECT ffc.templateId,conditionsType,priceTypeValue,amount from freight_free_conditions_location ffcl
+        LEFT JOIN freight_free_conditions ffc on ffc.conditionsId=ffcl.conditionsId
+        WHERE ffcl.locationId=#{locationId} AND ffc.templateId=#{freightId}
+    </select>
+    <select id="getDefaultFreeCondition" parameterType="map" resultType="com.maimaicn.goods.domain.FreightFreeConditions">
+        SELECT ffc.templateId,ffc.conditionsType,ffc.priceTypeValue,ffc.amount from freight_free_conditions ffc
+        WHERE ffc.templateId=#{freightId} AND isDefault='yes'
+    </select>
+    <!--获取运费的计算规则-->
+    <select id="getFreightDetailForSku" parameterType="map" resultType="com.maimaicn.goods.domain.FreightDetail">
+        SELECT fd.* from freight_detail_location fdl
+        LEFT JOIN freight_detail fd on fd.detailId=fdl.detailId
+        WHERE fdl.locationId=#{locationId} AND fd.templateId=#{freightId}
+    </select>
+    <select id="getDefaultFreightDetailForSku" parameterType="map" resultType="com.maimaicn.goods.domain.FreightDetail">
+        SELECT fd.* from freight_detail fd WHERE fd.templateId=#{freightId} AND fd.isDefault='yes'
+    </select>
+
+    <!--获取的运费模板列表-->
+    <resultMap id="freightTempListMap" type="map">
+        <id property="templateId" column="templateId"></id>
+        <result property="tempName" column="tempName"></result>
+        <result property="frank" column="frank"></result>
+        <result property="pt" column="priceType"></result>
+        <result property="freeConditions" column="freeConditions"></result>
+        <collection property="details" javaType="list" ofType="map">
+            <id property="detailId" column="detailId"></id>
+            <result property="isDefault" column="isDefault"></result>
+            <result property="f" column="f"></result>
+            <result property="fp" column="fp"></result>
+            <result property="s" column="s"></result>
+            <result property="sp" column="sp"></result>
+            <result property="areaIds" column="areaIds"></result>
+        </collection>
+    </resultMap>
+    <select id="myFreightTempList" parameterType="map" resultMap="freightTempListMap">
+        SELECT ft.templateId,ft.templateName as tempName,ft.frank,ft.priceType,ft.freeConditions,
+        fd.detailId,fd.isDefault,fd.`first` as f,fd.firstPrice as fp,fd.subsequent as s,fd.subsequentPrice as sp,
+        (select GROUP_CONCAT(locationId SEPARATOR ',') from freight_detail_location WHERE detailId=fd.detailId GROUP BY detailId) as areaIds
+        from freight_template ft
+        left JOIN freight_detail fd on fd.templateId=ft.templateId
+        WHERE ft.memberId=#{memberId}
+        limit #{startNo},#{pageSize}
+    </select>
+
+</mapper>

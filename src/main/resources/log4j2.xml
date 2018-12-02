@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <properties>
+        <property name="PATTERN">%p %d{yyyy-MM-dd HH:mm:ss.SSS} (%F:%L) : %m%n</property>
+    </properties>
+    
+    <appenders>
+    	<console name="console" target="SYSTEM_OUT">
+            <patternLayout pattern="${PATTERN}"/>
+        </console>
+    </appenders>
+    
+    <loggers>
+        <AsyncRoot level="info" includeLocation="true">
+            <AppenderRef ref="console"/>
+        </AsyncRoot>
+    </loggers>
+</configuration>

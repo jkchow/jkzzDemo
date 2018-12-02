@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mappers.SalePropertyValueMapper">
+	<!-- 根据销售属性id获取该属性下所有的 -->
+	<select id="getAllByPropertyId" parameterType="int" resultType="map">
+		select spv.*,spvl.labelName
+		from sale_property_value spv
+		left join sale_property_value_label spvl on spvl.labelId=spv.labelId
+		where spv.propertyId=#{propertyId}
+		order by spv.sortValue asc
+	</select>
+	<!-- 修改销售属性值，由于需要值标签需要设置为null的情况，所以需要自己实现 -->
+	<update id="updateNameAndLabel" parameterType="com.maimaicn.goods.domain.SalePropertyValue">
+		update sale_property_value set name=#{name},labelId=#{labelId},alias=#{alias},sortValue=#{sortValue} where valueId=#{valueId}
+	</update>
+</mapper>
