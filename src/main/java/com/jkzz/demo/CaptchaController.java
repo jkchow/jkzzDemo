@@ -129,10 +129,14 @@ public class CaptchaController extends BaseController {
      * @param height     选择区域的高度
      * @param sourcePath 源图片路径
      */
+
+
     public static byte[] cut(int x1, int y1, int width, int height, String sourcePath) {
 
         FileInputStream is = null;
+
         ImageInputStream iis = null;
+
         try {
             is = new FileInputStream(sourcePath);
             String fileSuffix = sourcePath.substring(sourcePath.lastIndexOf(".") + 1);
