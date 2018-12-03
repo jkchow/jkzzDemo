@@ -97,7 +97,7 @@ public class CaptchaController extends BaseController {
 
             BufferedImage water = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
-            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.5f));
             g.drawImage(water, x, y, width, height, null);
             g.dispose();
 
@@ -109,10 +109,10 @@ public class CaptchaController extends BaseController {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if(bi!=null){
+            if (bi != null) {
                 bi.flush();
             }
-            if(image!=null){
+            if (image != null) {
                 image.flush();
             }
 
@@ -132,9 +132,7 @@ public class CaptchaController extends BaseController {
 
 
     public static byte[] cut(int x1, int y1, int width, int height, String sourcePath) {
-
         FileInputStream is = null;
-
         ImageInputStream iis = null;
 
         try {
@@ -157,10 +155,10 @@ public class CaptchaController extends BaseController {
             e.printStackTrace();
         } finally {
             try {
-                if (is!=null) {
+                if (is != null) {
                     is.close();
                 }
-                if (iis!=null) {
+                if (iis != null) {
                     iis.close();
                 }
 
