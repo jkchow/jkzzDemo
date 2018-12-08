@@ -3,7 +3,7 @@ package com.jkzz.arraylist;
 import java.util.ArrayList;
 
 /**
- * arrayList 优化
+ * arrayList 优化  add优化
  */
 public class ArrayListDemo {
     public static void main(String[] args) {
