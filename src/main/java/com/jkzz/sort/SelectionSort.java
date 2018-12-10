@@ -2,6 +2,11 @@ package com.jkzz.sort;
 
 import java.util.Arrays;
 
+/**
+ * @description: 选择排序
+ * @author: 周振
+ * @create: 2018-12-10 18:50
+ **/
 public class SelectionSort {
 
     public int[] sort(int[] source) {
