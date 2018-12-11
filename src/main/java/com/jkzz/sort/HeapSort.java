@@ -4,6 +4,10 @@ import java.util.Arrays;
 
 /**
  * @program: jkzzDemo
+ *     3 17 8 7 16 20
+ *     17 3 8 7 16 20
+ *
+ *
  * @description: 堆排序
  * @author: 周振
  * @create: 2018-12-11 12:06
