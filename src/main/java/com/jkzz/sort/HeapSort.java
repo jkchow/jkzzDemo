@@ -12,7 +12,9 @@ public class HeapSort {
 
     public static void main(String[] args) {
         int[] arr = new int[]{3, 5, 3, 0, 8, 6, 1, 5, 8, 6, 2, 4, 9, 4, 7, 0, 1, 8, 9, 7, 3, 1, 2, 5, 9, 7, 4, 0, 2, 6};
-        new HeapSort().sort(arr);
+        int[] sort = new HeapSort().sort(arr);
+        System.out.println(Arrays.toString(sort));
+
     }
 
     public int[] sort(int[] sourceArray) {
@@ -33,7 +35,7 @@ public class HeapSort {
 
     private void buildMaxHeap(int[] arr, int len) {
         int i = (int) Math.floor(len / 2);
-        for (; i > 0; i--) {
+        for (; i >= 0; i--) {
             heapify(arr, i, len);
         }
     }
@@ -56,7 +58,7 @@ public class HeapSort {
         }
         if (largest != i) {
             swap(arr, i, largest);
-            heapify(arr, i, len);
+            heapify(arr, largest, len);
         }
     }
 
