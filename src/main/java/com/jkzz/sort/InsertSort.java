@@ -9,6 +9,36 @@ import java.util.Arrays;
  * @create: 2018-12-10 18:53
  **/
 public class InsertSort {
+
+
+    public static int[] sort1(int[] ary) {
+        for (int i = 1; i < ary.length; i++) {
+            int temp = ary[i];
+            int j;
+            for (j = i - 1; j >= 0 && temp < ary[j]; j--) {
+                ary[j + 1] = ary[j];
+            }
+            ary[j + 1] = temp;
+        }
+        return ary;
+    }
+
+    public static int[] insertSort(int[] ary) {
+        for (int i = 1; i < ary.length; i++) {
+            int temp = ary[i];
+            int j;
+            for (j = i - 1; j >= 0; j--) {
+                if (temp < ary[j]) {
+                    ary[j + 1] = ary[j];
+                } else
+                    break; //找到插入位置
+            }
+            ary[j + 1] = temp;
+        }
+
+        return ary;
+    }
+
     public int[] sort(int[] source) {
         int[] arr = Arrays.copyOf(source, source.length);
         //从下标为1的元素开始选择合适位置插入，因为下标为0的只有一个元素，默认是有序的
@@ -29,23 +59,15 @@ public class InsertSort {
         return arr;
     }
 
-    public static int[] sort1(int[] ary) {
-        for (int i = 1; i < ary.length; i++) {
-            int temp = ary[i];
-            int j;
-            for (j = i - 1; j >= 0 && temp < ary[j]; j--) {
-                ary[j + 1] = ary[j];
-            }
-            ary[j + 1] = temp;
-        }
-        return ary;
-    }
-
     public static void main(String[] args) {
-        int[] arr = {7, 3, 8, 1, 9};
-        int[] sort = new InsertSort().sort1(arr);
+        int[] arr = {7, 3};
+        int[] sort = new InsertSort().sort(arr);
+        Arrays.sort(arr);
         for (int i : sort) {
             System.out.println(i);
+        }
+        for (int i : arr) {
+            // System.out.println(i);
         }
     }
 
