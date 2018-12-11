@@ -39,6 +39,19 @@ public class InsertSort {
         return ary;
     }
 
+    //将arr[i] 插入到arr[0]...arr[i - 1]中
+    public static void insertion_sort(int[] arr) {
+        for (int i = 1; i < arr.length; i++) {
+            int temp = arr[i];
+            int j = i - 1;
+            //如果将赋值放到下一行的for循环内, 会导致在第10行出现j未声明的错误
+            for (;j >= 0 && arr[j] > temp;j--) {
+                arr[j + 1] = arr[j];
+            }
+            arr[j + 1] = temp;
+        }
+    }
+
     public int[] sort(int[] source) {
         int[] arr = Arrays.copyOf(source, source.length);
         //从下标为1的元素开始选择合适位置插入，因为下标为0的只有一个元素，默认是有序的
