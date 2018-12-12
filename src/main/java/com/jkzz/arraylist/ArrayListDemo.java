@@ -32,7 +32,7 @@ public class ArrayListDemo {
         long end2 = System.currentTimeMillis();
         long cost2 = end2 - begin2;
 
-        System.err.println("大量 add 操作没有优化前的时间花费：" + cost/1000);//微秒
+        System.err.println("大量 add 操作没有优化前的时间花费微秒：" + cost/1000);//微秒
         System.err.println("大量 add 操作没有优化前的时间花费：" + cost1);//毫秒
         System.err.println("大量 add 操作优化后的时间花费：" + cost2);
 
