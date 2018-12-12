@@ -1,5 +1,7 @@
 package com.jkzz.leetcode;
 
+import java.lang.management.ManagementFactory;
+
 /**
  * @program: jkzzDemo
  * @description: 类描述
@@ -7,9 +9,22 @@ package com.jkzz.leetcode;
  * @create: 2018-12-11 20:26
  **/
 public class Anagram {
-    public static void main(String[] args) {
-        boolean anagram = new Anagram().isAnagram("abc", "cba");
-        System.out.println(anagram);
+    public static void main(String[] args) throws Exception {
+        //boolean anagram = new Anagram().isAnagram("abc", "cba");
+        //System.out.println(anagram);
+        String name = ManagementFactory.getRuntimeMXBean().getName();
+        System.out.println(name);
+        // get pid
+        String pid = name.split("@")[0];
+        System.out.println("Pid is:" + pid);
+        int i=100;
+        StringBuilder a=new StringBuilder("sdfdsfkljshd");
+        while (true) {
+            //Thread.sleep(50l);
+            //a.append("我是周振！");
+            System.out.println(i++);
+        }
+
     }
 
     public boolean isAnagram(String s, String t) {
