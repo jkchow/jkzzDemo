@@ -10,15 +10,11 @@ import java.util.Arrays;
  **/
 public class HeapSortErHei {
     /**
-
      * 下沉调整
-
-     * @param array     待调整的堆
-
-     * @param parentIndex    要下沉的父节点
-
-     * @param parentIndex    堆的有效大小
-
+     *
+     * @param array       待调整的堆
+     * @param parentIndex 要下沉的父节点
+     * @param parentIndex 堆的有效大小
      */
 
     public static void downAdjust(int[] array, int parentIndex, int length) {
@@ -61,18 +57,16 @@ public class HeapSortErHei {
 
 
     /**
-
      * 堆排序
-
-     * @param array     待调整的堆
-
+     *
+     * @param array 待调整的堆
      */
 
     public static void heapSort(int[] array) {
 
         // 1.把无序数组构建成二叉堆。
 
-        for (int i = (array.length-2)/
+        for (int i = (array.length - 2) /
                 2; i >= 0; i--) {
 
             downAdjust(array, i, array.length);
@@ -104,7 +98,7 @@ public class HeapSortErHei {
 
     public static void main(String[] args) {
 
-        int[] arr = new int[] {1,3,2,6,5,7,8,9,10,0};
+        int[] arr = new int[]{1, 3, 2, 6, 5, 7, 8, 9, 10, 0};
 
         heapSort(arr);
 
