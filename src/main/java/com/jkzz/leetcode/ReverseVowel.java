@@ -7,7 +7,11 @@ package com.jkzz.leetcode;
  * @create: 2018-12-20 13:33
  **/
 public class ReverseVowel {
-    public String reverseVowels3(String s) {
+    public static void main(String[] args) {
+        System.out.println(ReverseVowel.reverseVowels3("ooeabec"));
+    }
+
+    public static String reverseVowels3(String s) {
         if (s == null || s.trim().length() <= 1) {
             return s;
         }
