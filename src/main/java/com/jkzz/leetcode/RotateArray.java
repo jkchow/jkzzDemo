@@ -16,7 +16,7 @@ public class RotateArray {
      * @param nums
      * @param k
      */
-    public void rotate(int[] nums, int k) {
+    public static void rotate(int[] nums, int k) {
         if (k % nums.length != 0) {
             int pre, tem;
             for (int i=0; i < k % nums.length; i++) {
@@ -29,6 +29,19 @@ public class RotateArray {
             }
         }
     }
+
+
+
+    public static void main(String[] args) {
+        int[] a={1,2,3,4,5,6};
+        rotate(a,5);
+        for (int i:a) {
+            System.out.print(i+"\t");
+        }
+    }
+
+
+
 
 
     /**
