@@ -8,8 +8,14 @@ package com.jkzz.leetcode;
  **/
 public class Testyu {
     public static void main(String[] args) {
-        if (11==2&&false||true&&1==1) {
+        if (v11()||true&&true) {
+
             System.out.println(1);
         }
+    }
+
+    public static boolean v11(){
+            System.out.println(1234);
+        return  true;
     }
 }
