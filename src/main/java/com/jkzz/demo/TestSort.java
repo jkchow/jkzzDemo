@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
+
 /**
  * @program: jkzzDemo
  * @description: 类描述
@@ -33,7 +35,7 @@ public class TestSort {
         //list.forEach(u->System.out.println(u));
 
         System.out.println(list);
-        list.stream().sorted((u1, u2) -> (u2.getAge()).compareTo(u1.getAge())).collect(Collectors.toList());
+        list.stream().sorted((u1, u2) -> (u2.getAge()).compareTo(u1.getAge())).collect(toList());
                 //
        System.out.println(list);
         //list.stream().forEach(u -> System.out.println(u));
