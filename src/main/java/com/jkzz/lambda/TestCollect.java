@@ -11,14 +11,22 @@ import java.util.stream.Stream;
  * @create: 2018-12-28 14:46
  **/
 public class TestCollect {
+
+    public static void main(String[] args) {
+     //toListTest();
+        //toSetTest();
+        toMapTest();
+    }
     /**
      * toList
      */
     public static void toListTest() {
         List<PersonModel> data = Data.getData();
+        System.out.println(data);
         List<String> collect = data.stream()
                 .map(PersonModel::getName)
                 .collect(Collectors.toList());
+        System.out.println(collect);
     }
 
     /**
@@ -29,6 +37,7 @@ public class TestCollect {
         Set<String> collect = data.stream()
                 .map(PersonModel::getName)
                 .collect(Collectors.toSet());
+        System.out.println(collect);
     }
 
     /**
@@ -36,15 +45,19 @@ public class TestCollect {
      */
     public static void toMapTest() {
         List<PersonModel> data = Data.getData();
+        System.out.println(data);
+
         Map<String, Integer> collect = data.stream()
                 .collect(
                         Collectors.toMap(PersonModel::getName, PersonModel::getAge)
                 );
-
-        data.stream()
+System.out.println(collect);
+        Map<String, String> collect1 = data.stream()
                 .collect(Collectors.toMap(per -> per.getName(), value -> {
-                    return value + "1";
+                    //value.setAge(value.getAge()+1);
+                    return value+"" ;
                 }));
+        System.out.println(collect1);
     }
 
     /**
