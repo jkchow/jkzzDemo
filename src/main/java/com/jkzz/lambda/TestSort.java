@@ -18,12 +18,12 @@ public class TestSort {
 
     public static void main(String[] args) {
 
-        List<Person> list = new ArrayList<Person>();
+        List<Personl> list = new ArrayList<Personl>();
 
-        Person p1 = new Person("d", 55);
-        Person p0 = new Person("d", 5);
-        Person p2 = new Person("c", 18);
-        Person p3 = new Person("a", 37);
+        Personl p1 = new Personl("d", 55);
+        Personl p0 = new Personl("d", 5);
+        Personl p2 = new Personl("c", 18);
+        Personl p3 = new Personl("a", 37);
 
         list.add(p0);
         list.add(p1);
@@ -51,11 +51,11 @@ public class TestSort {
 
 }
 
-class Person {
+class Personl {
     public String name;
     public Integer age;
 
-    public Person(String name, Integer age) {
+    public Personl(String name, Integer age) {
         super();
         this.name = name;
         this.age = age;
