@@ -11,13 +11,25 @@ public class BuildClient {
     public static void main(String[] args) {
         User.Builder builder = new User.Builder();
         User user = builder.setName("corn").setAge(100).setAddress("广州").build();
+        System.out.println(user);
     }
 }
+
 class User {
 
     private String name;
     private int age;
     private String address;
+
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "name='" + name + '\'' +
+                ", age=" + age +
+                ", address='" + address + '\'' +
+                '}';
+    }
 
     public String getName() {
         return name;
