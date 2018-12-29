@@ -13,7 +13,7 @@ public class add2NumListNode {
         ListNode listNode1 = deleteListNode.buildListNode(arr);
         ListNode listNode2 = deleteListNode.buildListNode(arr2);
         ListNode listNode = addTwoNumbers(listNode1, listNode2);
-        System.out.println(listNode.val);
+        System.out.println(listNode.nextNode.val);
     }
 
     public static ListNode addTwoNumbers(ListNode l1, ListNode l2) {
@@ -40,4 +40,30 @@ public class add2NumListNode {
         }
         return list.val == 0 ? list.nextNode : list;
     }
+
+    public ListNode addTwoNumbers2(ListNode l1, ListNode l2) {
+        ListNode c1 = l1;
+        ListNode c2 = l2;
+        ListNode sentinel = new ListNode(0);
+        ListNode d = sentinel;
+        int sum = 0;
+        while (c1 != null || c2 != null) {
+            sum /= 10;
+            if (c1 != null) {
+                sum += c1.val;
+                c1 = c1.nextNode;
+            }
+            if (c2 != null) {
+                sum += c2.val;
+                c2 = c2.nextNode;
+            }
+            d.nextNode = new ListNode(sum % 10);
+            d = d.nextNode;
+        }
+        if (sum / 10 == 1) {
+            d.nextNode = new ListNode(1);
+        }
+        return sentinel.nextNode;
+    }
+
 }
