@@ -121,7 +121,7 @@ class Person {
     public void setAddress(String address) {
         this.address = address;
     }
-
+    //通过静态内部类等方式实现的零件无序话构造  建造者模式
     public static class Builder {
         private int    age     = 0;
         private int    safeID  = 0;
