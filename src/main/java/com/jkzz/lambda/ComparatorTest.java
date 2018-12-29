@@ -1,6 +1,9 @@
 package com.jkzz.lambda;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @program: jkzzDemo
  * @description: 类描述
@@ -9,8 +12,11 @@ package com.jkzz.lambda;
  **/
 public class ComparatorTest {
     public static void main(String[] args) {
-
+        List<Person> personList = Person.createShortList();
     }
+
+
+
 }
 
 
@@ -24,6 +30,15 @@ class Person {
     private String eMail;
     private String phone;
     private String address;
+
+    public static List<Person> createShortList() {
+        List<Person> people = new ArrayList<>();
+        people.add(new Person("Bob","Baker",21,Gender.MALE,"bob.baker@example.com","201-121-4678","44 4th St, Smallville, KS 12333"));
+        people.add(new Person("Jane","Doe",25,Gender.FEMALE,"jane.doe@example.com","202-123-4678","33 3rd St, Smallville, KS 12333"));
+        people.add(new Person("John","Doe",25,Gender.MALE,"john.doe@example.com","202-123-4678","33 3rd St, Smallville, KS 12333"));
+        people.add(new Person("James","Johnson",45,Gender.MALE,"james.johnson@example.com","333-456-1233","201 2nd St, New York, NY 12111"));
+        return people;
+    }
 
     @Override
     public String toString() {
@@ -106,4 +121,45 @@ class Person {
     public void setAddress(String address) {
         this.address = address;
     }
+
+    public static class Builder {
+        private int    age     = 0;
+        private int    safeID  = 0;
+        private String name    = null;
+        private String address = null;
+
+
+
+        public Builder(String name) {
+            this.name = name;
+        }
+
+        public Builder age(int val) {
+            age = val;
+            return this;
+        }
+
+        public Builder safeID(int val) {
+            safeID = val;
+            return this;
+        }
+
+        public Builder address(String val) {
+            address = val;
+            return this;
+        }
+
+        public Person build() { // 构建，返回一个新对象
+            return new Person(this);
+        }
+    }
+
+    private Person(Builder b) {
+        /*age = b.age;
+        safeID = b.safeID;
+        name = b.name;
+        address = b.address;*/
+
+    }
+
 }
