@@ -2,6 +2,8 @@ package com.jkzz.lambda;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -14,9 +16,31 @@ public class ComparatorTest {
     public static void main(String[] args) {
         List<Person> personList = Person.createShortList();
         System.out.println(personList);
+        for (Person p : personList) {
+            System.out.println(p.getAge());
+        }
+        //匿名内部类
+        Collections.sort(personList, new Comparator<Person>() {
+            @Override
+            public int compare(Person o1, Person o2) {
+                return o1.getAge() - (o2.getAge());
+                //return o1.getSurName().compareTo(o2.getSurName());
+            }
+        });
+        System.out.println(personList);
+
+        for (Person p : personList) {
+            System.out.println(p.getAge());
+        }
+        System.out.println();
+System.out.println();
+        //lambda1
+        Collections.sort(personList, (Person o1, Person o2) -> o2.getAge() - o1.getAge());
+        //Collections.sort(personList, (o1, o2) -> o2.getAge() - o1.getAge());
+        personList.forEach(person -> System.out.println(person.getAge()));
+
 
     }
-
 
 
 }
@@ -35,16 +59,17 @@ class Person {
 
     public static List<Person> createShortList() {
         List<Person> people = new ArrayList<>();
-        people.add(new Person("Bob","Baker",21,Gender.MALE,"bob.baker@example.com","201-121-4678","44 4th St, Smallville, KS 12333"));
-        people.add(new Person("Jane","Doe",25,Gender.FEMALE,"jane.doe@example.com","202-123-4678","33 3rd St, Smallville, KS 12333"));
-        people.add(new Person("John","Doe",25,Gender.MALE,"john.doe@example.com","202-123-4678","33 3rd St, Smallville, KS 12333"));
-        people.add(new Person("James","Johnson",45,Gender.MALE,"james.johnson@example.com","333-456-1233","201 2nd St, New York, NY 12111"));
+        people.add(new Person("Bob", "Baker", 21, Gender.MALE, "bob.baker@example.com", "201-121-4678", "44 4th St, Smallville, KS 12333"));
+        people.add(new Person("Jane", "Doe", 25, Gender.FEMALE, "jane.doe@example.com", "202-123-4678", "33 3rd St, Smallville, KS 12333"));
+        people.add(new Person("John", "Doe", 25, Gender.MALE, "john.doe@example.com", "202-123-4678", "33 3rd St, Smallville, KS 12333"));
+        people.add(new Person("James", "Johnson", 45, Gender.MALE, "james.johnson@example.com", "333-456-1233", "201 2nd St, New York, NY 12111"));
+        people.add(new Person("James", "Johnson", 15, Gender.MALE, "james.johnson@example.com", "333-456-1233", "201 2nd St, New York, NY 12111"));
         return people;
     }
 
     @Override
     public String toString() {
-        return "Person{" +
+        return "Person->{" +
                 "givenName='" + givenName + '\'' +
                 ", surName='" + surName + '\'' +
                 ", age=" + age +
@@ -123,13 +148,13 @@ class Person {
     public void setAddress(String address) {
         this.address = address;
     }
+
     //通过静态内部类等方式实现的零件无序话构造  建造者模式
     public static class Builder {
-        private int    age     = 0;
-        private int    safeID  = 0;
-        private String name    = null;
+        private int age = 0;
+        private int safeID = 0;
+        private String name = null;
         private String address = null;
-
 
 
         public Builder(String name) {
