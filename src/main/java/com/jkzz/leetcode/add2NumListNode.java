@@ -8,12 +8,14 @@ import java.util.Stack;
 public class add2NumListNode {
 
     public static void main(String[] args) {
-        int[] arr = new int[]{1, 2, 3, 3, 4};
-        int[] arr2 = new int[]{3, 4, 4, 5};
+        int[] arr = new int[]{4, 5};
+        int[] arr2 = new int[]{5,5, 4,5};
         ListNode listNode1 = deleteListNode.buildListNode(arr);
         ListNode listNode2 = deleteListNode.buildListNode(arr2);
         ListNode listNode = addTwoNumbers(listNode1, listNode2);
-        System.out.println(listNode.nextNode.val);
+        ListNode listNode5 = addTwoNumbers2(listNode1, listNode2);
+        ListNode listNode6 = addTwoNumbers3(listNode1, listNode2);
+        System.out.println(listNode6.val);
     }
 
     public static ListNode addTwoNumbers(ListNode l1, ListNode l2) {
@@ -41,7 +43,7 @@ public class add2NumListNode {
         return list.val == 0 ? list.nextNode : list;
     }
 
-    public ListNode addTwoNumbers2(ListNode l1, ListNode l2) {
+    public static ListNode addTwoNumbers2(ListNode l1, ListNode l2) {
         ListNode c1 = l1;
         ListNode c2 = l2;
         ListNode sentinel = new ListNode(0);
@@ -65,5 +67,21 @@ public class add2NumListNode {
         }
         return sentinel.nextNode;
     }
+    public static ListNode addTwoNumbers3(ListNode l1, ListNode l2) {
+        ListNode prev = new ListNode(0);
+        ListNode head = prev;
+        int carry = 0;
+        while (l1 != null || l2 != null || carry != 0) {
+            ListNode cur = new ListNode(0);
+            int sum = ((l2 == null) ? 0 : l2.val) + ((l1 == null) ? 0 : l1.val) + carry;
+            cur.val = sum % 10;
+            carry = sum / 10;
+            prev.nextNode = cur;
+            prev = cur;
 
+            l1 = (l1 == null) ? l1 : l1.nextNode;
+            l2 = (l2 == null) ? l2 : l2.nextNode;
+        }
+        return head.nextNode;
+    }
 }
