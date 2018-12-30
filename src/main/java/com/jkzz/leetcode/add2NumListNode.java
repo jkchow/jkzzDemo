@@ -15,7 +15,7 @@ public class add2NumListNode {
         ListNode listNode = addTwoNumbers(listNode1, listNode2);
         ListNode listNode5 = addTwoNumbers2(listNode1, listNode2);
         ListNode listNode6 = addTwoNumbers3(listNode1, listNode2);
-        System.out.println(listNode6.val);
+        System.out.println(listNode5.val);
         System.out.println(listNode6.val);
         System.out.println(listNode6.val);
     }
