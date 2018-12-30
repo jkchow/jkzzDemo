@@ -9,7 +9,7 @@ public class add2NumListNode {
 
     public static void main(String[] args) {
         int[] arr = new int[]{4, 5};
-        int[] arr2 = new int[]{5,5, 4,5};
+        int[] arr2 = new int[]{5, 5, 4, 5};
         ListNode listNode1 = deleteListNode.buildListNode(arr);
         ListNode listNode2 = deleteListNode.buildListNode(arr2);
         ListNode listNode = addTwoNumbers(listNode1, listNode2);
@@ -67,6 +67,7 @@ public class add2NumListNode {
         }
         return sentinel.nextNode;
     }
+
     public static ListNode addTwoNumbers3(ListNode l1, ListNode l2) {
         ListNode prev = new ListNode(0);
         ListNode head = prev;
