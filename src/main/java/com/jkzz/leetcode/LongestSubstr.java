@@ -4,14 +4,14 @@ import java.util.HashMap;
 
 /**
  * @program: jkzzDemo
- * @description: 最长子字符串
+ * @description: 获取最长子字符串
  * @author: 周振
  * @create: 2019-01-01 21:46
  **/
 public class LongestSubstr {
     public int lengthOfLongestSubstring(String s) {
         if (s.length() == 0) return 0;
-        HashMap<Character, Integer> map = new HashMap<Character, Integer>();
+        HashMap<Character, Integer> map = new HashMap<>();
         int max = 0;
         for (int i = 0, j = 0; i < s.length(); ++i) {
             if (map.containsKey(s.charAt(i))) {
