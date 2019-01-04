@@ -3,6 +3,8 @@ package com.jkzz.leetcode;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @program: jkzzDemo
@@ -29,6 +31,22 @@ public class LongestSubstr {
              map.put(s.charAt(i), i);
             max = Math.max(max, i - j + 1);
         }
+        return max;
+    }
+//妙啊！！
+    public int lengthOfLongestSubstring1(String s) {
+        int i = 0, j = 0, max = 0;
+        Set<Character> set = new HashSet<>();
+
+        while (j < s.length()) {
+            if (!set.contains(s.charAt(j))) {
+                set.add(s.charAt(j++));
+                max = Math.max(max, set.size());
+            } else {
+                set.remove(s.charAt(i++));
+            }
+        }
+
         return max;
     }
 }
