@@ -15,9 +15,9 @@ import java.util.Set;
 public class LongestSubstr {
     public static void main(String[] args) {
      LongestSubstr lsStr=new LongestSubstr();
-     System.out.println(lsStr.lengthOfLongestSubstring("123345678390"));
+     System.out.println(lsStr.lengthOfLongestSubstring1("123345678390123"));
         boolean blank = StringUtils.isBlank("\n 1");
-        System.out.println(blank);
+        //System.out.println(blank);
 
     }
     public int lengthOfLongestSubstring(String s) {
@@ -46,7 +46,10 @@ public class LongestSubstr {
                 set.remove(s.charAt(i++));
             }
         }
-
+        for (char a:set) {
+            System.out.println(a);
+        }
+        System.out.println(set.size());
         return max;
     }
 }
