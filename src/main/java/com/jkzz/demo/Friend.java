@@ -30,7 +30,7 @@ public class Friend {
         this.nickname = nickname;
         this.age = age;
     }
-
+    public Friend(){}
     @Override
     public String toString() {
         return "Friend->{" +
