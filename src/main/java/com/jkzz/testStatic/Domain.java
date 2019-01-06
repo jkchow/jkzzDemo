@@ -10,10 +10,10 @@ import java.util.Map;
  * @create: 2019-01-06 16:04
  **/
 public class Domain {
-
+    private static Map<String, String> domainMap = new HashMap<>();
     private static Domain domain = new Domain();
 
-    private static Map<String, String> domainMap = new HashMap<>();
+
 
     private Domain() {
         domainMap.put("isTrue", "true");
@@ -23,7 +23,8 @@ public class Domain {
         return domain;
     }
 }
-class test1{
+
+class test1 {
     public static void main(String[] args) {
         String s = Domain.getInstance().toString();
         System.out.println(s);
