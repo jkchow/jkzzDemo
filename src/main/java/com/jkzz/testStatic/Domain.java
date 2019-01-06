@@ -23,3 +23,9 @@ public class Domain {
         return domain;
     }
 }
+class test1{
+    public static void main(String[] args) {
+        String s = Domain.getInstance().toString();
+        System.out.println(s);
+    }
+}
