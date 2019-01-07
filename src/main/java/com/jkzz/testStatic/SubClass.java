@@ -38,7 +38,7 @@ public class SubClass extends Parent {
 
 class Parent {
     // 静态变量
-    public static String p_StaticField = "父类--静态变量";
+    public static String p_StaticField = "父类--静态变量 ";
     // 变量
     public String p_Field = "父类--变量";
 
