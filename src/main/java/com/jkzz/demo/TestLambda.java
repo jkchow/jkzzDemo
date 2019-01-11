@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * @program: java 10 demo
@@ -42,9 +44,17 @@ public class TestLambda {
         //为每一元素 计算 然后遍历
         Arrays.stream(new int[]{1, 2, 3}).map(n -> 2 * n + 1).forEach(System.out::println);
         //为每一元素 计算 然后求平均值
-        String s = Arrays.stream(new int[]{1, 2, 3}).map(n -> 2 * n + 1).average().toString();
-        System.out.println(s);
+        String sa = Arrays.stream(new int[]{1, 2, 3}).map(n -> 2 * n + 1).average().toString();
+        System.out.println(sa);
+        System.out.println();
+        Arrays.stream(new int[]{1, 2, 3}).map(n -> 2 * n + 1).average().ifPresent(System.out::println);
+        System.out.println();
+        Supplier<Stream<String>> streamSupplier = () -> Stream.of("d2", "a2", "b1", "b3", "c").filter(s -> s.startsWith("a"));
 
+        boolean b = streamSupplier.get().anyMatch(s -> true);// ok
+        System.out.println(b);
+        boolean c = streamSupplier.get().noneMatch(s -> true);  // ok
+        System.out.println(c);
 
     }
 }
