@@ -1,5 +1,7 @@
 package com.jkzz.leetcode;
 
+import java.util.function.Function;
+
 /**
  * @program: jkzzDemo
  * @description: 类描述
@@ -38,5 +40,6 @@ public class ReverseNum7 {
         ReverseNum7 rs7 = new ReverseNum7();
         int reverse = rs7.reverse(Integer.MAX_VALUE);
         System.out.println(reverse);
+        Function helloFunction = s -> "Hello " + s;
     }
 }
