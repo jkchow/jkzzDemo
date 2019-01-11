@@ -16,8 +16,8 @@ public class Testjdk10 {
         Function helloFunction = s -> "Hello " + s;
         List strings = new ArrayList<>();
         strings.add(helloFunction.apply("World"));
-        System.out.println(strings);
-        Consumer printer = (x)->System.out.println(x);
+        //System.out.println(strings);
+        Consumer printer = (x)->System.out.println(x+"123");
 
 
         strings.forEach(printer::accept);
