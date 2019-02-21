@@ -21,13 +21,19 @@ public class ReverseLinkedList {
             System.out.println(temp.date);
             temp = temp.next;
         }
-
-
+        Node node = reverseLinkedList(head);
+        temp = node;
+        //逆序前 输出列表
+        System.out.println("--------------");
+        while (temp != null) {
+            System.out.println(temp.date);
+            temp = temp.next;
+        }
     }
 
-    private static void reverseLinkedList(Node node) {
+    private static Node reverseLinkedList(Node node) {
         if (node == null || node.next == null) {
-            return;
+            return node;
         }
         Node p1 = node;
         Node p2 = node.next;
@@ -38,8 +44,8 @@ public class ReverseLinkedList {
             p1 = p2;
             p2 = p3;
         }
-
-
+        node.next = null;
+        return p1;
     }
 }
 
