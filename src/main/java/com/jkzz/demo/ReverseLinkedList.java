@@ -11,37 +11,43 @@ public class ReverseLinkedList {
     public static void main(String[] args) {
         Node head = new Node(3);
         head.next = new Node(5);
-        Node temp =head.next;
+        Node temp = head.next;
         temp.next = new Node(1);
-        temp=temp.next;
+        temp = temp.next;
         temp.next = new Node(9);
-        temp=head;
+        temp = head;
         //逆序前 输出列表
-        while (temp!=null){
+        while (temp != null) {
             System.out.println(temp.date);
-            temp=temp.next;
+            temp = temp.next;
         }
 
 
     }
-    private static void reverseLinkedList(Node node){
-        if (node==null||node.next==null) {
+
+    private static void reverseLinkedList(Node node) {
+        if (node == null || node.next == null) {
             return;
         }
-        Node p1=node;
-        Node p2=node.next;
-        Node p3=null;
-
+        Node p1 = node;
+        Node p2 = node.next;
+        Node p3 = null;
+        while (p2 != null) {
+            p3 = p2.next;
+            p2.next = p1;
+            p1 = p2;
+            p2 = p3;
+        }
 
 
     }
 }
 
 
-
 class Node {
     int date;
     Node next;
+
     Node(int date) {
         this.date = date;
     }
