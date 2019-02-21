@@ -49,7 +49,6 @@ public class ReverseLinkedList {
     }
 }
 
-
 class Node {
     int date;
     Node next;
