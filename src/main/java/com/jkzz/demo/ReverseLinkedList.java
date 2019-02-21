@@ -1,7 +1,7 @@
 package com.jkzz.demo;
 
 /**
- * @program: jkzzDemo
+ * @program: 反转链表
  * @description: 类描述
  * @author: 周振
  * @create: 2019-02-21 10:08
@@ -21,7 +21,8 @@ public class ReverseLinkedList {
             System.out.println(temp.date);
             temp = temp.next;
         }
-        Node node = reverseLinkedList(head);
+        // Node node = reverseLinkedList(head);
+        Node node = reverseList(head);
         temp = node;
         //逆序前 输出列表
         System.out.println("--------------");
@@ -31,6 +32,11 @@ public class ReverseLinkedList {
         }
     }
 
+    /**
+     * 使用递归
+     * @param node
+     * @return
+     */
     private static Node reverseLinkedList(Node node) {
         if (node == null || node.next == null) {
             return node;
@@ -47,6 +53,29 @@ public class ReverseLinkedList {
         node.next = null;
         return p1;
     }
+    static int i=1;
+    /**
+     * 递归方法
+     * @param node
+     * @return
+     */
+    public static Node reverseList(Node node){
+
+        if (node ==null||node.next==null) {
+            return node;
+        }
+
+        Node pNext=node.next;
+        Node temp=reverseList(pNext);
+
+        pNext.next = node;
+        node.next=null;
+        return temp;
+    }
+
+
+
+
 }
 
 class Node {
