@@ -10,10 +10,10 @@ public class TestEmpty {
         String b = "  ";
         String c = null;
         String d = "qweqwrwRRRRR2342355FFee";
-        upAndDown(d);
-        //testString(a);
-        //testString(b);
-        //testString(c);
+        //upAndDown(d);
+         testString(a);
+         testString(b);
+         testString(c);
     }
 
     private static void testString(String str){
