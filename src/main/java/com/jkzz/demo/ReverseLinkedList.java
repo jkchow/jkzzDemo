@@ -25,6 +25,14 @@ public class ReverseLinkedList {
 
     }
     private static void reverseLinkedList(Node node){
+        if (node==null||node.next==null) {
+            return;
+        }
+        Node p1=node;
+        Node p2=node.next;
+        Node p3=null;
+
+
 
     }
 }
