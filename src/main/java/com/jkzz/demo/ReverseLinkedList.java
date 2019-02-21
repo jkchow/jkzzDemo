@@ -42,7 +42,6 @@ public class ReverseLinkedList {
 class Node {
     int date;
     Node next;
-
     Node(int date) {
         this.date = date;
     }
