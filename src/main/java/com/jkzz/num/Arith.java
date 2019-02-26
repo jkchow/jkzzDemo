@@ -62,4 +62,15 @@ public class Arith {
         BigDecimal b2 = new BigDecimal(Double.valueOf(value2));
         return b1.divide(b2, scale).doubleValue();
     }
+
+
+    public static void main(String[] args) {
+     double a=1d;
+     double b=0.9d;
+     System.out.println(a-b);
+        double sub = sub(a, b);
+        System.out.println(sub);
+
+
+    }
 }
