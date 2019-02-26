@@ -70,7 +70,16 @@ public class Arith {
      System.out.println(a-b);
         double sub = sub(a, b);
         System.out.println(sub);
-
-
+        String s = MoneyUtil.moneySub("1", "0.9");
+System.out.println(s);
+double s1=Double.parseDouble(s);
+System.out.println(s1);
+        String format = String.format("%.2f", s1);
+        System.out.println(format);
+        double c=1.5d;
+        double d=1.5d;
+        String s2 = String.valueOf(c + d);
+        System.out.println(s2);
+        System.out.println(c+d);
     }
 }
