@@ -12,7 +12,11 @@ public class BuildClient {
         User.Builder builder = new User.Builder();
         User user = builder.setName("corn").setAge(100).setAddress("广州").build();
         System.out.println(user);
+
+
+
     }
+
 }
 
 class User {
