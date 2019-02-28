@@ -1,8 +1,6 @@
 package com.jkzz.demo;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @program: jkzzDemo
@@ -21,6 +19,9 @@ public class ThreadPoolTest {
                     executor.getQueue().size() + "，已执行玩别的任务数目：" + executor.getCompletedTaskCount());
         }
         executor.shutdown();
+
+        ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
+
     }
 }
 
