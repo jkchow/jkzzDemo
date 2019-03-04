@@ -13,10 +13,12 @@ public class SynchronizedDemo implements Runnable {
     private static AtomicInteger atomicInteger = new AtomicInteger(0);
 
     public static void main(String[] args) {
+        long l = System.currentTimeMillis();
         for (int i = 0; i < 10; i++) {
             Thread thread = new Thread(new SynchronizedDemo());
             thread.start();
         }
+        System.out.println((System.currentTimeMillis()-l));
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
@@ -28,9 +30,12 @@ public class SynchronizedDemo implements Runnable {
 
     @Override
     public void run() {
-        for (int i = 0; i < 10000; i++) {
-            count++;
-            atomicInteger.getAndIncrement();
+        synchronized (SynchronizedDemo.class){
+            for (int i = 0; i < 1000000; i++) {
+                count++;
+                atomicInteger.getAndIncrement();
+            }
         }
+
     }
 }
