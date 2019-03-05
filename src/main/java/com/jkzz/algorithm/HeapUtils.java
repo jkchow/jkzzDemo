@@ -4,6 +4,8 @@ package com.jkzz.algorithm;
  * Created by zym on 2018/3/7.
  */
 
+import java.util.Random;
+
 /**
  * 思路：
  * 构建一个包含M个节点的小根堆，之后循环数组，用数组的元素和小根堆的根作比较
@@ -101,7 +103,7 @@ public class HeapUtils {
                 maxNubmerArr[0] = data[i];
                 createMindHeap(maxNubmerArr, count - 1);
                 //查看每次取得的数字
-//                 print(maxNubmerArr);
+                 //print(maxNubmerArr);
             }
         }
         return maxNubmerArr;
@@ -112,10 +114,43 @@ public class HeapUtils {
      *
      * @param data
      */
+
     public static void print(float[] data) {
         for (int i = 0; i < data.length; i++) {
             System.out.print(data[i] + "\t");
         }
+
         System.out.println();
     }
+}
+
+
+/**
+ * Created by zym on 2018/3/7.
+ */
+ class TestDemo {
+    static int  x=Integer.MAX_VALUE-1;
+    public static void test2(){
+
+    }
+    public static void main(String[] args) {
+        if(x+1>x){
+            System.out.println("11111");
+        }
+
+    }
+    public static void test1(){
+        float arr[]= new float[10000];
+        for (int i=0;i<10000;i++){
+            Random random=new Random();
+            float v = random.nextFloat() * 50f;
+            arr[i]=v;
+        }
+        long start=System.currentTimeMillis();
+        float[] maxNumber = HeapUtils.getMaxNumber(100, arr);
+        HeapUtils.heapSort(maxNumber);
+        HeapUtils.print(maxNumber);
+        System.out.println(System.currentTimeMillis()-start);
+    }
+
 }

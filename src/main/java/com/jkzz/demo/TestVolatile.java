@@ -18,4 +18,13 @@ public class TestVolatile {
             }
         }
     }
+
+    public static void main(String[] args) {
+
+    }
+    static void test(){
+        final int b;
+       // System.out.println(b+2);
+
+    }
 }
